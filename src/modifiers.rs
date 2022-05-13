@@ -1,3 +1,17 @@
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+
+static REPLACEMENTS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
+    [
+        ("odd", "nth-child(odd)"),
+        ("even", "nth-child(even)"),
+        ("first", "first-child"),
+        ("last", "last-child"),
+        ("only", "only-child"),
+    ]
+    .into()
+});
+
 #[derive(Default, PartialEq, Debug)]
 pub(crate) struct Modifiers<'a>(Vec<Modifier<'a>>);
 
@@ -9,7 +23,7 @@ impl<'a> Modifiers<'a> {
             Some(
                 self.0
                     .iter()
-                    .map(Modifier::value)
+                    .map(Modifier::as_str)
                     .collect::<Vec<_>>()
                     .join(":"),
             )
@@ -27,10 +41,6 @@ impl<'a> From<Vec<&'a str>> for Modifiers<'a> {
     }
 }
 
-// TODO something like this
-// i wanna be able to have both replaced variables for common modifiers
-// eg: odd -> :nth-child(odd)
-// but i also wanna be able to keep it relaxed so you can type whatever
 #[derive(Debug, PartialEq)]
 enum Modifier<'a> {
     Converted { from: &'a str, to: &'static str },
@@ -39,36 +49,17 @@ enum Modifier<'a> {
 
 impl<'a> Modifier<'a> {
     fn new(s: &'a str) -> Self {
-        match s {
-            "odd" => Self::Converted {
-                from: s,
-                to: "nth-child(odd)",
-            },
-            "even" => Self::Converted {
-                from: s,
-                to: "nth-child(even)",
-            },
-            "first" => Self::Converted {
-                from: s,
-                to: "first-child",
-            },
-            "last" => Self::Converted {
-                from: s,
-                to: "last-child",
-            },
-            "only" => Self::Converted {
-                from: s,
-                to: "only-child",
-            },
-            // TODO add more
-            _ => Self::Unknown(s),
+        if let Some(to) = REPLACEMENTS.get(s) {
+            Self::Converted { from: s, to }
+        } else {
+            Self::Unknown(s)
         }
     }
 
-    fn value(&self) -> &str {
+    fn as_str(&self) -> &str {
         match self {
-            Modifier::Converted { from, to } => to,
-            Modifier::Unknown(v) => v,
+            Self::Converted { to, .. } => to,
+            Self::Unknown(v) => v,
         }
     }
 }

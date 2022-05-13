@@ -1,4 +1,4 @@
-use crate::modifiers::Modifiers;
+use crate::{modifiers::Modifiers, name::Name};
 
 pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
     let (class, pseudo) = if let Some((class, pseudo)) = original.split_once('$') {
@@ -21,7 +21,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
     };
 
     Some(Class {
-        name: &class[0..start],
+        name: Name::new(&class[0..start]),
         value: &class[start + 1..end],
         modifiers: mods.into(),
         pseudo,
@@ -31,7 +31,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct Class<'a> {
-    pub name: &'a str,
+    pub name: Name<'a>,
     pub value: &'a str,
     pub modifiers: Modifiers<'a>,
     pub pseudo: Option<&'a str>,
@@ -68,6 +68,7 @@ impl<'a> Class<'a> {
             .replace('$', "\\$")
             .replace('\'', "\\'")
             .replace('*', "\\*")
+            .replace('%', "\\%")
     }
 }
 
@@ -83,7 +84,7 @@ mod tests {
         assert_eq!(
             parse_class(class),
             Some(Class {
-                name,
+                name: Name::new(name),
                 value,
                 modifiers: modifiers.into(),
                 pseudo,
