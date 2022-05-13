@@ -1,26 +1,11 @@
 * zephyr
 zephyr is a [[https://tailwindcss.com/][tailwind]]-esque css generator library
+
 zephyr is not a framework, it will not give you the tools to make good UI
+
 zephyr is a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
+
 zephyr is kinda somewhat a dsl for css
-** how does zephyr work
-you provide a list of classes you use, and zephyr generates the css for you
-
-#+begin_src rust
-let classes = [
-    "mt[10rem]",
-    "color[#e20f00]",
-    "color[green]hover",
-    "content[attr(after)]$after",
-    "content['*']$before",
-    "color[red]$after",
-];
-
-let css = zephyr::generate_css(&classes);
-let style = format!("<style>{css}</style>");
-#+end_src
-
-there are currently no tools for scanning a directory to find all the classes used, but they are planned
 
 ** how to define classes
 *** name and value
@@ -47,17 +32,20 @@ pseudo-elements like =::before= or =::after= are also supported. they are delimi
 which will display an asterisk after the element, but only while hovered
 *** replacements
 zephyr performs replacements for some common names and pseudo-classes
+
 im not gonna list them all here, cause they're probably gonna change often
+
 these allow you to write =bgc[red]odd= instead of =background-color[red]nth-child(odd)=
 
 there's currently no way to customize the replacements, but it is planned in the future
 *** media queries
 media queries are unsupported so far, but are also on the roadmap
-
 ** faq
 *** should i use this?
 probably no? especially now that it's in such an early phase, but even when i "finish" implementing the base set of features, zephyr will be a very niche tool highly tailored to my needs
+
 you are welcome to give it a go, but unless you want to use it in exactly the same way i want to, you'll probably not have much luck
 *** why did you make this?
 i want the convenience of tailwind's utility classes without having to touch the hellscape that is npm
+
 i also thought this might be a fun little project to work on, and so far it has been !
