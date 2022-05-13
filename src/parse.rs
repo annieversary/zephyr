@@ -60,6 +60,14 @@ impl<'a> Class<'a> {
         }
 
         format!(".{original}{rest}")
+            .replace('[', "\\[")
+            .replace(']', "\\]")
+            .replace('(', "\\(")
+            .replace(')', "\\)")
+            .replace('#', "\\#")
+            .replace('$', "\\$")
+            .replace('\'', "\\'")
+            .replace('*', "\\*")
     }
 }
 

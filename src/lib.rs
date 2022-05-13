@@ -7,7 +7,7 @@ use crate::parse::*;
 mod modifiers;
 mod parse;
 
-pub fn generate(classes: &[&str], path: impl AsRef<Path>) -> Result<(), Error> {
+pub fn generate_and_write(classes: &[&str], path: impl AsRef<Path>) -> Result<(), Error> {
     let out = generate_css(classes);
     std::fs::write(path, out)?;
 
@@ -31,13 +31,19 @@ pub fn generate_class(class: &str) -> Option<String> {
 static RULES: Lazy<HashMap<&str, &dyn Rule>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("m", &Margin as &dyn Rule);
+    m.insert("mt", &MarginTop as &dyn Rule);
+    m.insert("color", &Color as &dyn Rule);
+    m.insert("content", &Content as &dyn Rule);
     m
 });
+
+// TODO maybe we can skip rules and make it just be a general rewritter
 
 trait Rule: Sync {
     fn generate<'a>(&self, class: &Class<'a>) -> String;
 }
 
+struct Margin;
 impl Rule for Margin {
     fn generate<'a>(&self, class: &Class<'a>) -> String {
         format!(
@@ -47,7 +53,39 @@ impl Rule for Margin {
         )
     }
 }
-struct Margin;
+
+struct MarginTop;
+impl Rule for MarginTop {
+    fn generate<'a>(&self, class: &Class<'a>) -> String {
+        format!(
+            "{selector} {{ margin-top: {value}; }}",
+            selector = class.selector(),
+            value = class.value
+        )
+    }
+}
+
+struct Color;
+impl Rule for Color {
+    fn generate<'a>(&self, class: &Class<'a>) -> String {
+        format!(
+            "{selector} {{ color: {value}; }}",
+            selector = class.selector(),
+            value = class.value
+        )
+    }
+}
+
+struct Content;
+impl Rule for Content {
+    fn generate<'a>(&self, class: &Class<'a>) -> String {
+        format!(
+            "{selector} {{ content: {value}; }}",
+            selector = class.selector(),
+            value = class.value
+        )
+    }
+}
 
 #[derive(Error, Debug)]
 pub enum Error {
