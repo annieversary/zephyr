@@ -1,10 +1,10 @@
-use crate::{modifiers::Modifiers, name::Name, Zephyr};
+use crate::Zephyr;
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct Class<'a> {
-    pub name: Name<'a>,
+    pub name: &'a str,
     pub value: Option<&'a str>,
-    pub modifiers: Modifiers<'a>,
+    pub modifiers: Vec<&'a str>,
     pub pseudo: Option<&'a str>,
     /// the original unparsed value
     /// needed to generate the css selector
@@ -12,7 +12,7 @@ pub(crate) struct Class<'a> {
 }
 
 impl<'a> Class<'a> {
-    pub(crate) fn selector(&self) -> String {
+    pub(crate) fn selector(&self, z: &Zephyr) -> String {
         let Class {
             modifiers,
             pseudo,
@@ -20,14 +20,20 @@ impl<'a> Class<'a> {
             ..
         } = self;
 
-        let mut rest = if let Some(mods) = modifiers.get() {
-            format!(":{mods}")
-        } else {
-            "".to_string()
-        };
+        let mut rest = modifiers
+            .iter()
+            .map(|m| -> &str { z.modifiers.get(*m).map(AsRef::as_ref).unwrap_or(m) })
+            .collect::<Vec<_>>()
+            .join(":");
+
         if let Some(pseudo) = pseudo {
             rest.push_str("::");
             rest.push_str(pseudo);
+        }
+
+        // TODO we can probably skip the format here, we just need to push the char at the start
+        if !rest.is_empty() {
+            rest = format!(":{rest}");
         }
 
         format!(".{original}{rest}")
@@ -45,12 +51,16 @@ impl<'a> Class<'a> {
 
     /// TODO return result
     pub(crate) fn generate(&self, z: &Zephyr) -> String {
-        let name = self.name.as_str();
+        let name = z
+            .names
+            .get(self.name)
+            .map(AsRef::as_ref)
+            .unwrap_or(self.name);
+        let selector = self.selector(z);
+
         if let Some(val) = self.value {
-            let selector = self.selector();
             format!("{selector} {{ {name}: {val}; }}",)
         } else if let Some(v) = z.rules.get(name) {
-            let selector = self.selector();
             format!("{selector} {{ {v} }}",)
         } else {
             panic!("{name} is not a no-variable rule, and no variables were provided");

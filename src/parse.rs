@@ -1,4 +1,4 @@
-use crate::{class::Class, name::Name};
+use crate::class::Class;
 
 pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
     let (class, pseudo) = if let Some((class, pseudo)) = original.split_once('$') {
@@ -15,7 +15,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
         };
 
         return Some(Class {
-            name: Name::new(&class[0..p]),
+            name: &class[0..p],
             value: None,
             modifiers: mods.into(),
             pseudo,
@@ -32,7 +32,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
             };
 
             return Some(Class {
-                name: Name::new(&class[0..start]),
+                name: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
                 pseudo,
@@ -41,7 +41,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
         }
         _ => {
             return Some(Class {
-                name: Name::new(&class[0..]),
+                name: &class[0..],
                 value: None,
                 modifiers: vec![].into(),
                 pseudo,
@@ -66,7 +66,7 @@ mod tests {
         assert_eq!(
             parse_class(class),
             Some(Class {
-                name: Name::new(name),
+                name,
                 value,
                 modifiers: modifiers.into(),
                 pseudo,

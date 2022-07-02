@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
-use defaults::default_rules;
+use defaults::default_modifiers;
 
-use crate::parse::*;
+use crate::{
+    defaults::{default_names, default_rules},
+    parse::*,
+};
 
 mod class;
 mod defaults;
-mod modifiers;
-mod name;
 mod parse;
 
 // pub fn generate_and_write(classes: &[&str], path: impl AsRef<Path>) -> Result<(), std::io::Error> {
@@ -19,6 +20,8 @@ mod parse;
 
 pub struct Zephyr {
     pub rules: HashMap<String, String>,
+    pub names: HashMap<String, String>,
+    pub modifiers: HashMap<String, String>,
 }
 
 impl Zephyr {
@@ -26,13 +29,17 @@ impl Zephyr {
     pub fn new() -> Self {
         Self {
             rules: default_rules(),
+            names: default_names(),
+            modifiers: default_modifiers(),
         }
     }
 
     /// builds a `Zephyr` without the default ruleset
-    pub fn new_without_rules() -> Self {
+    pub fn new_without_defaults() -> Self {
         Self {
             rules: HashMap::new(),
+            names: HashMap::new(),
+            modifiers: HashMap::new(),
         }
     }
 
@@ -59,7 +66,7 @@ mod tests {
         let z = Zephyr::new();
 
         let class = Class {
-            name: "m".into(),
+            name: "m",
             value: Some("1rem"),
             modifiers: vec![].into(),
             pseudo: None,
@@ -69,7 +76,7 @@ mod tests {
         assert_eq!(css, r#".m\[1rem\] { margin: 1rem; }"#);
 
         let class = Class {
-            name: "m".into(),
+            name: "m",
             value: Some("1rem"),
             modifiers: vec!["focus"].into(),
             pseudo: None,
@@ -79,7 +86,7 @@ mod tests {
         assert_eq!(css, r#".m\[1rem\]focus:focus { margin: 1rem; }"#);
 
         let class = Class {
-            name: "m".into(),
+            name: "m",
             value: Some("1rem"),
             modifiers: vec!["focus", "hover", "odd"].into(),
             pseudo: None,
