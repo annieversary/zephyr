@@ -10,7 +10,8 @@ fn main() {
         "color[red]$after",
     ];
 
-    let css = dbg!(zephyr::generate_css(&classes));
+    let z = zephyr::Zephyr::new();
+    let css = z.generate_css(&classes);
 
     let html = format!(
         r#"
