@@ -28,12 +28,13 @@ impl<'a> Class<'a> {
 
         if let Some(pseudo) = pseudo {
             rest.push_str("::");
+            let pseudo: &str = z.pseudos.get(*pseudo).map(AsRef::as_ref).unwrap_or(pseudo);
             rest.push_str(pseudo);
         }
 
         // TODO we can probably skip the format here, we just need to push the char at the start
         if !rest.is_empty() {
-            rest = format!(":{rest}");
+            rest.insert(0, ':')
         }
 
         format!(".{original}{rest}")

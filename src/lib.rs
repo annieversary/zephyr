@@ -15,6 +15,7 @@ pub struct Zephyr {
     pub names: HashMap<String, String>,
     pub values: HashMap<String, String>,
     pub modifiers: HashMap<String, String>,
+    pub pseudos: HashMap<String, String>,
 }
 
 impl Zephyr {
@@ -25,6 +26,7 @@ impl Zephyr {
             names: default_names(),
             values: default_values(),
             modifiers: default_modifiers(),
+            pseudos: default_pseudos(),
         }
     }
 
@@ -35,6 +37,7 @@ impl Zephyr {
             names: HashMap::new(),
             values: HashMap::new(),
             modifiers: HashMap::new(),
+            pseudos: HashMap::new(),
         }
     }
 

@@ -58,3 +58,13 @@ pub(crate) fn default_modifiers() -> HashMap<String, String> {
     .map(|(a, b)| (a.to_string(), b.to_string()))
     .collect()
 }
+
+pub(crate) fn default_pseudos() -> HashMap<String, String> {
+    vec![
+        ("ph", "placeholder"),
+        // TODO
+    ]
+    .into_iter()
+    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect()
+}
