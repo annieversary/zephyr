@@ -35,6 +35,16 @@ pub(crate) fn default_names() -> HashMap<String, String> {
     .collect()
 }
 
+pub(crate) fn default_values() -> HashMap<String, String> {
+    vec![
+        ("full", "100%"),
+        // TODO
+    ]
+    .into_iter()
+    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect()
+}
+
 pub(crate) fn default_modifiers() -> HashMap<String, String> {
     vec![
         ("odd", "nth-child(odd)"),

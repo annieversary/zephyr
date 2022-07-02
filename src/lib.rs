@@ -2,25 +2,18 @@ use std::collections::HashMap;
 
 use defaults::default_modifiers;
 
-use crate::{
-    defaults::{default_names, default_rules},
-    parse::*,
-};
+use crate::{defaults::*, parse::*};
 
 mod class;
 mod defaults;
 mod parse;
 
-// pub fn generate_and_write(classes: &[&str], path: impl AsRef<Path>) -> Result<(), std::io::Error> {
-//     let out = generate_css(classes);
-//     std::fs::write(path, out)?;
-
-//     Ok(())
-// }
-
 pub struct Zephyr {
+    /// for non-value rules
     pub rules: HashMap<String, String>,
+
     pub names: HashMap<String, String>,
+    pub values: HashMap<String, String>,
     pub modifiers: HashMap<String, String>,
 }
 
@@ -30,6 +23,7 @@ impl Zephyr {
         Self {
             rules: default_rules(),
             names: default_names(),
+            values: default_values(),
             modifiers: default_modifiers(),
         }
     }
@@ -39,6 +33,7 @@ impl Zephyr {
         Self {
             rules: HashMap::new(),
             names: HashMap::new(),
+            values: HashMap::new(),
             modifiers: HashMap::new(),
         }
     }

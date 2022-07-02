@@ -59,6 +59,7 @@ impl<'a> Class<'a> {
         let selector = self.selector(z);
 
         if let Some(val) = self.value {
+            let val = z.values.get(val).map(AsRef::as_ref).unwrap_or(val);
             format!("{selector} {{ {name}: {val}; }}",)
         } else if let Some(v) = z.rules.get(name) {
             format!("{selector} {{ {v} }}",)
