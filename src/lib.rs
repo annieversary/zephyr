@@ -52,13 +52,16 @@ impl Zephyr {
             .into_iter()
             .flat_map(|s| s.split_ascii_whitespace())
             // TODO skip duplicates, use hashset or smth
-            .flat_map(|c| self.generate_class(c))
+            // we ignore errors
+            .flat_map(|c| self.generate_class(c).ok().flatten())
             .collect::<Vec<_>>()
             .join("")
     }
 
-    pub fn generate_class(&self, class: &str) -> Option<String> {
-        parse_class(class).map(|c| c.generate(self))
+    /// this one returns an error if parsing or generating fails
+    // TODO add an error type
+    pub fn generate_class(&self, class: &str) -> Result<Option<String>, &'static str> {
+        parse_class(class).map(|c| c.generate(self)).transpose()
     }
 }
 

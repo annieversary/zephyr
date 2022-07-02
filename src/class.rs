@@ -50,8 +50,7 @@ impl<'a> Class<'a> {
             .replace('%', "\\%")
     }
 
-    /// TODO return result
-    pub(crate) fn generate(&self, z: &Zephyr) -> String {
+    pub(crate) fn generate(&self, z: &Zephyr) -> Result<String, &'static str> {
         let name = z
             .names
             .get(self.name)
@@ -61,11 +60,11 @@ impl<'a> Class<'a> {
 
         if let Some(val) = self.value {
             let val = z.values.get(val).map(AsRef::as_ref).unwrap_or(val);
-            format!("{selector} {{ {name}: {val}; }}",)
+            Ok(format!("{selector} {{ {name}: {val}; }}",))
         } else if let Some(v) = z.rules.get(name) {
-            format!("{selector} {{ {v} }}",)
+            Ok(format!("{selector} {{ {v} }}",))
         } else {
-            panic!("{name} is not a no-variable rule, and no variables were provided");
+            Err("{name} is not a no-variable rule, and no variables were provided")
         }
     }
 }
