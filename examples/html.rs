@@ -1,6 +1,6 @@
 fn main() {
-    // this list would ideally be generated on the fly out of the written html,
-    // but i don't want to unneeded dependencies to this crate
+    // this list of used classes would ideally be parsed out of the written html,
+    // but i don't want to over complicate this example
     let classes = [
         "mt[10rem]",
         "color[#e20f00]",
@@ -11,7 +11,7 @@ fn main() {
     ];
 
     let z = zephyr::Zephyr::new();
-    let css = z.generate_css(&classes);
+    let css = z.generate_classes(classes);
 
     let html = format!(
         r#"

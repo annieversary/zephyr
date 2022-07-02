@@ -8,6 +8,10 @@ mod class;
 mod defaults;
 mod parse;
 
+#[cfg(feature = "inventory")]
+#[macro_use]
+pub mod inventory;
+
 pub struct Zephyr {
     /// for non-value rules
     pub rules: HashMap<String, String>,
@@ -41,12 +45,13 @@ impl Zephyr {
         }
     }
 
-    pub fn generate_css(&self, classes: &[&str]) -> String {
-        // TODO when we have media queries, we can do something to group them together
+    pub fn generate_classes<'a>(&self, classes: impl IntoIterator<Item = &'a str>) -> String {
+        // TODO when we have media queries, we can do something to group them by the query, and then emit those together
 
         classes
             .into_iter()
             .flat_map(|s| s.split_ascii_whitespace())
+            // TODO skip duplicates, use hashset or smth
             .flat_map(|c| self.generate_class(c))
             .collect::<Vec<_>>()
             .join("")
@@ -104,19 +109,19 @@ mod tests {
     fn generate_classes_works() {
         let z = Zephyr::new();
 
-        let classes = z.generate_css(&["flex-row"]);
+        let classes = z.generate_classes(["flex-row"]);
         assert_eq!(
             classes,
             r#".flex-row { display: flex; flex-direction: row; }"#
         );
 
-        let classes = z.generate_css(&["m[3rem]hover,focus$placeholder"]);
+        let classes = z.generate_classes(["m[3rem]hover,focus$placeholder"]);
         assert_eq!(
             classes,
             r#".m\[3rem\]hover,focus\$placeholder:hover:focus::placeholder { margin: 3rem; }"#
         );
 
-        let classes = z.generate_css(&["flex|hover,focus$placeholder"]);
+        let classes = z.generate_classes(["flex|hover,focus$placeholder"]);
         assert_eq!(
             classes,
             r#".flex\|hover,focus\$placeholder:hover:focus::placeholder { display: flex; }"#
@@ -127,8 +132,8 @@ mod tests {
     fn generate_multiple_works() {
         let z = Zephyr::new();
 
-        let classes_joined = z.generate_css(&["flex-row mt[1rem]"]);
-        let classes_separate = z.generate_css(&["flex-row", "mt[1rem]"]);
+        let classes_joined = z.generate_classes(["flex-row mt[1rem]"]);
+        let classes_separate = z.generate_classes(["flex-row", "mt[1rem]"]);
         assert_eq!(
             classes_joined,
             r#".flex-row { display: flex; flex-direction: row; }.mt\[1rem\] { margin-top: 1rem; }"#
