@@ -42,8 +42,11 @@ impl Zephyr {
     }
 
     pub fn generate_css(&self, classes: &[&str]) -> String {
+        // TODO when we have media queries, we can do something to group them together
+
         classes
             .into_iter()
+            .flat_map(|s| s.split_ascii_whitespace())
             .flat_map(|c| self.generate_class(c))
             .collect::<Vec<_>>()
             .join("")
@@ -118,5 +121,18 @@ mod tests {
             classes,
             r#".flex\|hover,focus\$placeholder:hover:focus::placeholder { display: flex; }"#
         );
+    }
+
+    #[test]
+    fn generate_multiple_works() {
+        let z = Zephyr::new();
+
+        let classes_joined = z.generate_css(&["flex-row mt[1rem]"]);
+        let classes_separate = z.generate_css(&["flex-row", "mt[1rem]"]);
+        assert_eq!(
+            classes_joined,
+            r#".flex-row { display: flex; flex-direction: row; }.mt\[1rem\] { margin-top: 1rem; }"#
+        );
+        assert_eq!(classes_separate, classes_joined);
     }
 }
