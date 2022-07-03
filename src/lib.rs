@@ -81,7 +81,7 @@ mod tests {
             pseudo: None,
             original: "m[1rem]",
         };
-        let css = class.generate(&z);
+        let css = class.generate(&z).unwrap();
         assert_eq!(css, r#".m\[1rem\] { margin: 1rem; }"#);
 
         let class = Class {
@@ -91,7 +91,7 @@ mod tests {
             pseudo: None,
             original: "m[1rem]focus",
         };
-        let css = class.generate(&z);
+        let css = class.generate(&z).unwrap();
         assert_eq!(css, r#".m\[1rem\]focus:focus { margin: 1rem; }"#);
 
         let class = Class {
@@ -101,7 +101,7 @@ mod tests {
             pseudo: None,
             original: "m[1rem]focus,hover,odd",
         };
-        let css = class.generate(&z);
+        let css = class.generate(&z).unwrap();
         assert_eq!(
             css,
             r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\) { margin: 1rem; }"#
@@ -129,6 +129,9 @@ mod tests {
             classes,
             r#".flex\|hover,focus\$placeholder:hover:focus::placeholder { display: flex; }"#
         );
+
+        let classes = z.generate_classes(["mr[0.5rem]"]);
+        assert_eq!(classes, r#".mr\[0\.5rem\] { margin-right: 0.5rem; }"#);
     }
 
     #[test]

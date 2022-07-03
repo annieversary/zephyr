@@ -32,22 +32,24 @@ impl<'a> Class<'a> {
             rest.push_str(pseudo);
         }
 
-        // TODO we can probably skip the format here, we just need to push the char at the start
         if !rest.is_empty() {
             rest.insert(0, ':')
         }
 
-        format!(".{original}{rest}")
+        let mut r = format!("{original}{rest}")
             .replace('[', "\\[")
             .replace(']', "\\]")
             .replace('|', "\\|")
             .replace('(', "\\(")
             .replace(')', "\\)")
+            .replace('.', "\\.")
             .replace('#', "\\#")
             .replace('$', "\\$")
             .replace('\'', "\\'")
             .replace('*', "\\*")
-            .replace('%', "\\%")
+            .replace('%', "\\%");
+        r.insert(0, '.');
+        r
     }
 
     pub(crate) fn generate(&self, z: &Zephyr) -> Result<String, &'static str> {
