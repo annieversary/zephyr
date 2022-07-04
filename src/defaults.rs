@@ -16,6 +16,8 @@ pub(crate) fn default_rules() -> HashMap<String, String> {
 
 pub(crate) fn default_names() -> HashMap<String, String> {
     vec![
+        ("w", "width"),
+        ("h", "height"),
         ("m", "margin"),
         ("mt", "margin-top"),
         ("mb", "margin-bottom"),
