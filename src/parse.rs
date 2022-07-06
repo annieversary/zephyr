@@ -1,6 +1,9 @@
 use crate::class::Class;
 
+// TODO return error
 pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
+    // this code is kinda repetitive but idk
+
     let (class, pseudo) = if let Some((class, pseudo)) = original.split_once('$') {
         (class, Some(pseudo))
     } else {
@@ -23,6 +26,31 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
             value_literal: false,
         });
     }
+
+    match (pos(class, '{'), pos(class, '}')) {
+        (Some(start), Some(end)) if start <= end => {
+            let mods = if end + 1 == class.len() {
+                vec![]
+            } else {
+                class[end + 1..].split(',').collect()
+            };
+
+            return Some(Class {
+                name: &class[0..start],
+                value: Some(&class[start + 1..end]),
+                modifiers: mods.into(),
+                pseudo,
+                original,
+                value_literal: true,
+            });
+        }
+        // go to [...] case
+        (None, None) => {}
+        _ => {
+            // TODO return an error here
+            return None;
+        }
+    };
 
     match (pos(class, '['), pos(class, ']')) {
         (Some(start), Some(end)) if start <= end => {
@@ -78,6 +106,22 @@ mod tests {
             })
         );
     }
+    fn check_literal(
+        class: &str,
+        (name, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
+    ) {
+        assert_eq!(
+            parse_class(class),
+            Some(Class {
+                name,
+                value,
+                modifiers: modifiers.into(),
+                pseudo,
+                original: class,
+                value_literal: true,
+            })
+        );
+    }
 
     #[test]
     fn parse_works() {
@@ -94,6 +138,15 @@ mod tests {
         check(
             "he🥰llo[one:two]",
             ("he🥰llo", Some("one:two"), vec![], None),
+        );
+    }
+
+    #[test]
+    fn parse_literal_values() {
+        // testing out weird unicode stuffs
+        check_literal(
+            "hello{hey_hello}",
+            ("hello", Some("hey_hello"), vec![], None),
         );
     }
 

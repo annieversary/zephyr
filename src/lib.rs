@@ -195,4 +195,16 @@ mod tests {
             r#".border\[1px_solid_black\]{border:1px solid black;}"#
         );
     }
+
+    #[test]
+    fn generate_literals_works() {
+        let z = Zephyr::new();
+
+        // the curly brackets indicate that the value should not go through replacements
+        let classes = z.generate_classes(["border{1px_solid_black}", "w{full}"]);
+        assert_eq!(
+            classes,
+            r#".border\{1px_solid_black\}{border:1px_solid_black;}.w\{full\}{width:full;}"#
+        );
+    }
 }

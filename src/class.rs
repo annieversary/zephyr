@@ -44,6 +44,8 @@ impl<'a> Class<'a> {
             .replace('|', "\\|")
             .replace('(', "\\(")
             .replace(')', "\\)")
+            .replace('{', "\\{")
+            .replace('}', "\\}")
             .replace('.', "\\.")
             .replace('#', "\\#")
             .replace('$', "\\$")
