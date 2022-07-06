@@ -13,14 +13,23 @@ mod parse;
 pub mod inventory;
 
 pub struct Zephyr {
-    /// for non-value rules
+    /// for non-value classes
     pub rules: HashMap<String, String>,
+    /// special rules. Fn(Value) -> Properties
+    pub specials: HashMap<String, SpecialRule>,
 
+    /// list of name short-hands
     pub names: HashMap<String, String>,
+    /// list of value short-hands
     pub values: HashMap<String, String>,
+    /// list of modifier short-hands
     pub modifiers: HashMap<String, String>,
+    /// list of pseudo-element short-hands
     pub pseudos: HashMap<String, String>,
 }
+
+/// Value -> Rules
+pub type SpecialRule = Box<dyn Fn(&str) -> String>;
 
 impl Zephyr {
     /// builds a `Zephyr` with the default ruleset
@@ -31,6 +40,7 @@ impl Zephyr {
             values: default_values(),
             modifiers: default_modifiers(),
             pseudos: default_pseudos(),
+            specials: default_specials(),
         }
     }
 
@@ -42,6 +52,7 @@ impl Zephyr {
             values: HashMap::new(),
             modifiers: HashMap::new(),
             pseudos: HashMap::new(),
+            specials: HashMap::new(),
         }
     }
 
@@ -161,5 +172,16 @@ mod tests {
             r#".flex-row { display: flex; flex-direction: row; }.mt\[1rem\] { margin-top: 1rem; }"#
         );
         assert_eq!(classes_separate, classes_joined);
+    }
+
+    #[test]
+    fn generate_specials_works() {
+        let z = Zephyr::new();
+
+        let classes = z.generate_classes(["mx[1rem]"]);
+        assert_eq!(
+            classes,
+            r#".mx\[1rem\] { margin-left: 1rem; margin-right: 1rem; }"#
+        );
     }
 }

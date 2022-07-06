@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::SpecialRule;
+
 pub(crate) fn default_rules() -> HashMap<String, String> {
     vec![
         ("flex", "display: flex;"),
@@ -68,5 +70,38 @@ pub(crate) fn default_pseudos() -> HashMap<String, String> {
     ]
     .into_iter()
     .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect()
+}
+
+pub(crate) fn default_specials() -> HashMap<String, SpecialRule> {
+    vec![
+        ("mx", {
+            fn fun<'a>(val: &'a str) -> String {
+                format!("margin-left: {val}; margin-right: {val};")
+            }
+            Box::new(fun) as SpecialRule
+        }),
+        ("my", {
+            fn fun<'a>(val: &'a str) -> String {
+                format!("margin-top: {val}; margin-bottom: {val};")
+            }
+            Box::new(fun) as SpecialRule
+        }),
+        ("px", {
+            fn fun<'a>(val: &'a str) -> String {
+                format!("padding-left: {val}; padding-right: {val};")
+            }
+            Box::new(fun) as SpecialRule
+        }),
+        ("py", {
+            fn fun<'a>(val: &'a str) -> String {
+                format!("padding-top: {val}; padding-bottom: {val};")
+            }
+            Box::new(fun) as SpecialRule
+        }),
+        // TODO
+    ]
+    .into_iter()
+    .map(|(a, b)| (a.to_string(), b))
     .collect()
 }
