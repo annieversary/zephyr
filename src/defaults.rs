@@ -4,11 +4,11 @@ use crate::SpecialRule;
 
 pub(crate) fn default_rules() -> HashMap<String, String> {
     vec![
-        ("flex", "display: flex;"),
-        ("flex-row", "display: flex; flex-direction: row;"),
-        ("flex-col", "display: flex; flex-direction: column;"),
-        ("items-center", "align-items: center"),
-        ("justify-center", "justify-content: center"),
+        ("flex", "display:flex;"),
+        ("flex-row", "display:flex;flex-direction:row;"),
+        ("flex-col", "display:flex;flex-direction:column;"),
+        ("items-center", "align-items:center"),
+        ("justify-center", "justify-content:center"),
         // TODO
     ]
     .into_iter()
@@ -73,32 +73,23 @@ pub(crate) fn default_pseudos() -> HashMap<String, String> {
     .collect()
 }
 
+macro_rules! special {
+    ($name:literal, $val:ident, $string:literal) => {
+        ($name, {
+            fn fun<'a>($val: &'a str) -> String {
+                format!($string)
+            }
+            Box::new(fun) as SpecialRule
+        })
+    };
+}
+
 pub(crate) fn default_specials() -> HashMap<String, SpecialRule> {
     vec![
-        ("mx", {
-            fn fun<'a>(val: &'a str) -> String {
-                format!("margin-left: {val}; margin-right: {val};")
-            }
-            Box::new(fun) as SpecialRule
-        }),
-        ("my", {
-            fn fun<'a>(val: &'a str) -> String {
-                format!("margin-top: {val}; margin-bottom: {val};")
-            }
-            Box::new(fun) as SpecialRule
-        }),
-        ("px", {
-            fn fun<'a>(val: &'a str) -> String {
-                format!("padding-left: {val}; padding-right: {val};")
-            }
-            Box::new(fun) as SpecialRule
-        }),
-        ("py", {
-            fn fun<'a>(val: &'a str) -> String {
-                format!("padding-top: {val}; padding-bottom: {val};")
-            }
-            Box::new(fun) as SpecialRule
-        }),
+        special!("mx", val, "margin-left:{val};margin-right:{val};"),
+        special!("my", val, "margin-top:{val};margin-bottom:{val};"),
+        special!("px", val, "padding-left:{val};padding-right:{val};"),
+        special!("py", val, "padding-top:{val};padding-bottom:{val};"),
         // TODO
     ]
     .into_iter()

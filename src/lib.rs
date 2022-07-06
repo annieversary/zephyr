@@ -107,9 +107,10 @@ mod tests {
             modifiers: vec![].into(),
             pseudo: None,
             original: "m[1rem]",
+            value_literal: false,
         };
         let css = class.generate(&z).unwrap();
-        assert_eq!(css, r#".m\[1rem\] { margin: 1rem; }"#);
+        assert_eq!(css, r#".m\[1rem\]{margin:1rem;}"#);
 
         let class = Class {
             name: "m",
@@ -117,9 +118,10 @@ mod tests {
             modifiers: vec!["focus"].into(),
             pseudo: None,
             original: "m[1rem]focus",
+            value_literal: false,
         };
         let css = class.generate(&z).unwrap();
-        assert_eq!(css, r#".m\[1rem\]focus:focus { margin: 1rem; }"#);
+        assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem;}"#);
 
         let class = Class {
             name: "m",
@@ -127,11 +129,12 @@ mod tests {
             modifiers: vec!["focus", "hover", "odd"].into(),
             pseudo: None,
             original: "m[1rem]focus,hover,odd",
+            value_literal: false,
         };
         let css = class.generate(&z).unwrap();
         assert_eq!(
             css,
-            r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\) { margin: 1rem; }"#
+            r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\){margin:1rem;}"#
         );
     }
 
@@ -140,25 +143,22 @@ mod tests {
         let z = Zephyr::new();
 
         let classes = z.generate_classes(["flex-row"]);
-        assert_eq!(
-            classes,
-            r#".flex-row { display: flex; flex-direction: row; }"#
-        );
+        assert_eq!(classes, r#".flex-row{display:flex;flex-direction:row;}"#);
 
         let classes = z.generate_classes(["m[3rem]hover,focus$placeholder"]);
         assert_eq!(
             classes,
-            r#".m\[3rem\]hover,focus\$placeholder:hover:focus::placeholder { margin: 3rem; }"#
+            r#".m\[3rem\]hover,focus\$placeholder:hover:focus::placeholder{margin:3rem;}"#
         );
 
         let classes = z.generate_classes(["flex|hover,focus$placeholder"]);
         assert_eq!(
             classes,
-            r#".flex\|hover,focus\$placeholder:hover:focus::placeholder { display: flex; }"#
+            r#".flex\|hover,focus\$placeholder:hover:focus::placeholder{display:flex;}"#
         );
 
         let classes = z.generate_classes(["mr[0.5rem]"]);
-        assert_eq!(classes, r#".mr\[0\.5rem\] { margin-right: 0.5rem; }"#);
+        assert_eq!(classes, r#".mr\[0\.5rem\]{margin-right:0.5rem;}"#);
     }
 
     #[test]
@@ -169,7 +169,7 @@ mod tests {
         let classes_separate = z.generate_classes(["flex-row", "mt[1rem]"]);
         assert_eq!(
             classes_joined,
-            r#".flex-row { display: flex; flex-direction: row; }.mt\[1rem\] { margin-top: 1rem; }"#
+            r#".flex-row{display:flex;flex-direction:row;}.mt\[1rem\]{margin-top:1rem;}"#
         );
         assert_eq!(classes_separate, classes_joined);
     }
@@ -181,7 +181,18 @@ mod tests {
         let classes = z.generate_classes(["mx[1rem]"]);
         assert_eq!(
             classes,
-            r#".mx\[1rem\] { margin-left: 1rem; margin-right: 1rem; }"#
+            r#".mx\[1rem\]{margin-left:1rem;margin-right:1rem;}"#
+        );
+    }
+
+    #[test]
+    fn generate_with_spaces_works() {
+        let z = Zephyr::new();
+
+        let classes = z.generate_classes(["border[1px_solid_black]"]);
+        assert_eq!(
+            classes,
+            r#".border\[1px_solid_black\]{border:1px solid black;}"#
         );
     }
 }

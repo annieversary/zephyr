@@ -20,6 +20,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
             modifiers: mods.into(),
             pseudo,
             original,
+            value_literal: false,
         });
     }
 
@@ -37,6 +38,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
                 modifiers: mods.into(),
                 pseudo,
                 original,
+                value_literal: false,
             });
         }
         _ => {
@@ -46,6 +48,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
                 modifiers: vec![].into(),
                 pseudo,
                 original,
+                value_literal: false,
             });
         }
     }
@@ -70,7 +73,8 @@ mod tests {
                 value,
                 modifiers: modifiers.into(),
                 pseudo,
-                original: class
+                original: class,
+                value_literal: false,
             })
         );
     }

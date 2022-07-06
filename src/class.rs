@@ -4,6 +4,8 @@ use crate::Zephyr;
 pub(crate) struct Class<'a> {
     pub name: &'a str,
     pub value: Option<&'a str>,
+    /// if true, no replacements will be done on `value`
+    pub value_literal: bool,
     pub modifiers: Vec<&'a str>,
     pub pseudo: Option<&'a str>,
     /// the original unparsed value
@@ -61,16 +63,24 @@ impl<'a> Class<'a> {
         let selector = self.selector(z);
 
         if let Some(val) = self.value {
-            let val = z.values.get(val).map(AsRef::as_ref).unwrap_or(val);
+            let val = if self.value_literal {
+                val.to_string()
+            } else {
+                z.values
+                    .get(val)
+                    .map(AsRef::as_ref)
+                    .unwrap_or(val)
+                    .replace('_', " ")
+            };
 
             if let Some(fun) = z.specials.get(name) {
-                let v = fun(val);
-                Ok(format!("{selector} {{ {v} }}",))
+                let v = fun(&val);
+                Ok(format!("{selector}{{{v}}}",))
             } else {
-                Ok(format!("{selector} {{ {name}: {val}; }}",))
+                Ok(format!("{selector}{{{name}:{val};}}"))
             }
         } else if let Some(v) = z.rules.get(name) {
-            Ok(format!("{selector} {{ {v} }}",))
+            Ok(format!("{selector}{{{v}}}"))
         } else {
             Err("{name} is not a no-variable rule, and no variables were provided")
         }
