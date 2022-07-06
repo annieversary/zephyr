@@ -1,4 +1,4 @@
-use crate::Zephyr;
+use crate::{Zephyr, ZephyrError};
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct Class<'a> {
@@ -56,7 +56,7 @@ impl<'a> Class<'a> {
         r
     }
 
-    pub(crate) fn generate(&self, z: &Zephyr) -> Result<String, &'static str> {
+    pub(crate) fn generate(&self, z: &Zephyr) -> Result<String, ZephyrError> {
         let name = z
             .names
             .get(self.name)
@@ -84,7 +84,7 @@ impl<'a> Class<'a> {
         } else if let Some(v) = z.rules.get(name) {
             Ok(format!("{selector}{{{v}}}"))
         } else {
-            Err("{name} is not a no-variable rule, and no variables were provided")
+            Err(ZephyrError::ValueMissing)
         }
     }
 }

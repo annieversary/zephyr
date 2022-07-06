@@ -1,7 +1,6 @@
-use crate::class::Class;
+use crate::{class::Class, ZephyrError};
 
-// TODO return error
-pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
+pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrError> {
     // this code is kinda repetitive but idk
 
     let (class, pseudo) = if let Some((class, pseudo)) = original.split_once('$') {
@@ -17,7 +16,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
             class[p + 1..].split(',').collect()
         };
 
-        return Some(Class {
+        return Ok(Class {
             name: &class[0..p],
             value: None,
             modifiers: mods.into(),
@@ -35,7 +34,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
                 class[end + 1..].split(',').collect()
             };
 
-            return Some(Class {
+            return Ok(Class {
                 name: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
@@ -46,9 +45,9 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
         }
         // go to [...] case
         (None, None) => {}
+        // braces do not form a valid block
         _ => {
-            // TODO return an error here
-            return None;
+            return Err(ZephyrError::InvalidBraces);
         }
     };
 
@@ -60,7 +59,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
                 class[end + 1..].split(',').collect()
             };
 
-            return Some(Class {
+            return Ok(Class {
                 name: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
@@ -70,7 +69,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Option<Class<'a>> {
             });
         }
         _ => {
-            return Some(Class {
+            return Ok(Class {
                 name: &class[0..],
                 value: None,
                 modifiers: vec![].into(),
@@ -96,7 +95,7 @@ mod tests {
     ) {
         assert_eq!(
             parse_class(class),
-            Some(Class {
+            Ok(Class {
                 name,
                 value,
                 modifiers: modifiers.into(),
@@ -112,7 +111,7 @@ mod tests {
     ) {
         assert_eq!(
             parse_class(class),
-            Some(Class {
+            Ok(Class {
                 name,
                 value,
                 modifiers: modifiers.into(),

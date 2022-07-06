@@ -31,6 +31,14 @@ pub struct Zephyr {
 /// Value -> Rules
 pub type SpecialRule = Box<dyn Fn(&str) -> String>;
 
+#[derive(PartialEq, Debug)]
+pub enum ZephyrError {
+    /// the provided rule has invalid braces (single braces, or in incorrect order `..}...{..`)
+    InvalidBraces,
+    /// the provided rule isn't a no-variable rule, but no variables were provided
+    ValueMissing,
+}
+
 impl Zephyr {
     /// builds a `Zephyr` with the default ruleset
     pub fn new() -> Self {
@@ -80,15 +88,15 @@ impl Zephyr {
                 }
             })
             // we ignore errors
-            .flat_map(|c| self.generate_class(c).ok().flatten())
+            .flat_map(|c| self.generate_class(c).ok())
             .collect::<Vec<_>>()
             .join("")
     }
 
     /// this one returns an error if parsing or generating fails
-    // TODO add an error type
-    pub fn generate_class(&self, class: &str) -> Result<Option<String>, &'static str> {
-        parse_class(class).map(|c| c.generate(self)).transpose()
+    pub fn generate_class(&self, class: &str) -> Result<String, ZephyrError> {
+        let c = parse_class(class)?;
+        c.generate(self)
     }
 }
 
