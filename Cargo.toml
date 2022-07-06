@@ -10,6 +10,7 @@ inventory = ["dep:inventory"]
 
 [dependencies]
 inventory = { version = "0.3", optional = true }
+tracing = "0.1.35"
 
 [[example]]
 name = "inventory"

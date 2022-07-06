@@ -65,12 +65,16 @@ impl Zephyr {
     }
 
     pub fn generate_classes<'a>(&self, classes: impl IntoIterator<Item = &'a str>) -> String {
-        // TODO when we have media queries, we can do something to group them by the query, and then emit those together
+        // TODO when we have media queries, we can do something to group them by the query,
+        //  and then emit those together
 
         // TODO we could return (css, seen_classes)
         let mut seen_classes = vec![];
 
-        classes
+        let span = tracing::trace_span!("generating classes");
+        let _enter = span.enter();
+
+        let classes = classes
             .into_iter()
             // get a list with one class per element
             .flat_map(|s| s.split_ascii_whitespace())
@@ -88,9 +92,20 @@ impl Zephyr {
                 }
             })
             // we ignore errors
-            .flat_map(|c| self.generate_class(c).ok())
-            .collect::<Vec<_>>()
-            .join("")
+            .flat_map(|c| match self.generate_class(c) {
+                Ok(v) => Some(v),
+                Err(err) => {
+                    // trace error
+                    tracing::error!("error generating {c}: {err:?}");
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let len = classes.len();
+        tracing::trace!("finished generating {len} classes");
+
+        classes.join("")
     }
 
     /// this one returns an error if parsing or generating fails
