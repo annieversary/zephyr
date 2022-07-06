@@ -48,10 +48,26 @@ impl Zephyr {
     pub fn generate_classes<'a>(&self, classes: impl IntoIterator<Item = &'a str>) -> String {
         // TODO when we have media queries, we can do something to group them by the query, and then emit those together
 
+        // TODO we could return (css, seen_classes)
+        let mut seen_classes = vec![];
+
         classes
             .into_iter()
+            // get a list with one class per element
             .flat_map(|s| s.split_ascii_whitespace())
-            // TODO skip duplicates, use hashset or smth
+            .map(|s| s.trim())
+            // remove duplicates
+            // we use this instead of a HashSet because we want it to not change the order
+            // if it's a performance concern, we could use HashSet on normal builds and the filter for test
+            // but i don't really like that
+            .filter(|s| {
+                if seen_classes.contains(s) {
+                    false
+                } else {
+                    seen_classes.push(s);
+                    true
+                }
+            })
             // we ignore errors
             .flat_map(|c| self.generate_class(c).ok().flatten())
             .collect::<Vec<_>>()
