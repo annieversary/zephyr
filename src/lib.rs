@@ -12,6 +12,10 @@ mod parse;
 #[macro_use]
 pub mod inventory;
 
+/// used to generate css out of classes
+///
+/// contains shorthands and replacements that can be modified
+/// to customize the css generation
 pub struct Zephyr {
     /// for non-value classes
     pub declarations: HashMap<String, String>,
@@ -28,7 +32,7 @@ pub struct Zephyr {
     pub pseudos: HashMap<String, String>,
 }
 
-/// Value -> declarations
+/// value -> declarations
 pub type SpecialDeclaration = Box<dyn Fn(&str) -> String>;
 
 #[derive(PartialEq, Debug)]
@@ -64,6 +68,7 @@ impl Zephyr {
         }
     }
 
+    /// generates css rules for all the of the classes that parse correctly
     pub fn generate_classes<'a>(&self, classes: impl IntoIterator<Item = &'a str>) -> String {
         // TODO when we have media queries, we can do something to group them by the query,
         //  and then emit those together
