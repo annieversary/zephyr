@@ -1,51 +1,113 @@
 * zephyr
-zephyr is a [[https://tailwindcss.com/][tailwind]]-esque css generator library
-
-zephyr is not a framework, it will not give you the tools to make good UI
-
-zephyr is a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
-
-zephyr is kinda somewhat a dsl for css
+zephyr is a [[https://tailwindcss.com/][tailwind]]-inspired css generator dsl. it acts as a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
 
 ** how to define classes
-*** name and value
-in the most simple case, classes have a name and a value: =name[value]=. zephyr will take this and generate the following css:
+*** property and value
+in the most simple case, classes have a property and a value: =name[value]=. zephyr will take this and generate the following css:
 
 #+begin_src css
 .name\[value\] {
     name: value;
 }
 #+end_src
-
-note that classes without values are currently unsupported, but a high priority on the roadmap
+*** non-value classes
+some non-value classes are supported [[#declarations][read more here]].
+for example, =flex=, which will generate =.flex { display: flex; }=
 *** pseudo-classes
-to use pseudo-classes such as =focus=, =hover=, and others, you provide a name, value, and the pseudo-class: =name[value]pseudo=. multiple pseudo-classes can be concatenated with commas: =m[1rem]focus,hover,odd=
+zephyr supports pseudo-classes:
+**** with values
+when using pseudo-classes with values, simply write the pseudo-class you want after the closing square bracket, like so: =name[value]pseudo=.
+multiple pseudo-classes can be concatenated with commas: =m[1rem]focus,hover,odd=
+**** without values
+for non-value classes, the format used is =name|pseudo=.
+multiple pseudo-classes can be concatenated with commas: =flex-row|focus,hover,odd=
 *** pseudo-elements
-pseudo-elements like =::before= or =::after= are also supported. they are delimited by =$=: =content['*']hover$after= will result in:
+pseudo-elements like =::before= or =::after= are also supported. they are delimited by =$=.
+for example, =content['*']hover$after= will result in:
 
 #+begin_src css
 .content\[\'\*\'\]hover\$after:hover::after {
     content: '*';
 }
 #+end_src
-
-which will display an asterisk after the element, but only while hovered
 *** replacements
-zephyr performs replacements for some common names and pseudo-classes
+zephyr performs replacements for some common properties, values, pseudo-classes, and pseudo-elements. they are listed under [[#defaults][defaults]]. these allow you to write =bgc[red]odd= instead of =background-color[red]nth-child(odd)=
 
-im not gonna list them all here, cause they're probably gonna change often
-
-these allow you to write =bgc[red]odd= instead of =background-color[red]nth-child(odd)=
-
-there's currently no way to customize the replacements, but it is planned in the future
+you can customize the replacements by accessing the hashmaps in =Zephyr= and inserting/removing what you see fit
 *** media queries
-media queries are unsupported so far, but are also on the roadmap
-** faq
-*** should i use this?
-probably no? especially now that it's in such an early phase, but even when i "finish" implementing the base set of features, zephyr will be a very niche tool highly tailored to my needs
+media queries are unsupported so far, but are on the roadmap
+** defaults
+these are the current default values, lifted straight from the code.
+you are free to add more by accessing the hashmaps in =Zephyr=
+*** declarations
+these are the non-value classes:
+#+begin_src rust
+("flex", "display:flex;"),
+("flex-row", "display:flex;flex-direction:row;"),
+("flex-col", "display:flex;flex-direction:column;"),
+("items-center", "align-items:center"),
+("justify-center", "justify-content:center"),
+#+end_src
+*** properties
+#+begin_src rust
+("w", "width"),
+("h", "height"),
+("m", "margin"),
+("mt", "margin-top"),
+("mb", "margin-bottom"),
+("ml", "margin-left"),
+("mr", "margin-right"),
+("p", "padding"),
+("pt", "padding-top"),
+("pb", "padding-bottom"),
+("pl", "padding-left"),
+("pr", "padding-right"),
+("bg", "background"),
+("bgc", "background-color"),
+#+end_src
+*** values
+#+begin_src rust
+("full", "100%"),
+#+end_src
+*** pseudo-classes
+#+begin_src rust
+("odd", "nth-child(odd)"),
+("even", "nth-child(even)"),
+("first", "first-child"),
+("last", "last-child"),
+("only", "only-child"),
+#+end_src
+*** pseudo-elements
+#+begin_src rust
+("ph", "placeholder"),
+#+end_src
+*** specials
+these are for property-value classes which need to output multiple declarations or need to do some processing to the value
+#+begin_src rust
+special!("mx", val, "margin-left:{val};margin-right:{val};"),
+special!("my", val, "margin-top:{val};margin-bottom:{val};"),
+special!("px", val, "padding-left:{val};padding-right:{val};"),
+special!("py", val, "padding-top:{val};padding-bottom:{val};"),
+#+end_src
+** how to use
+to generate the css out of the list of classes, call =generate_classes=
 
-you are welcome to give it a go, but unless you want to use it in exactly the same way i want to, you'll probably not have much luck
-*** why did you make this?
-i want the convenience of tailwind's utility classes without having to touch the hellscape that is npm
+#+begin_src rust
+let classes = [
+    "mt[10rem]",
+    "color[#e20f00]",
+    "color[green]hover",
+    "content[attr(after)]$after",
+    "content['*']$before",
+    "color[red]$after",
+];
 
-i also thought this might be a fun little project to work on, and so far it has been !
+let z = zephyr::Zephyr::new();
+let css = z.generate_classes(classes);
+#+end_src
+
+see [[examples/html.rs][examples/html.rs]] for more information
+** inventory
+by activating the =inventory= feature, you can register classes from different parts of your application, and then generate them all with a single call to =generate_from_inventory=. this is done by using the [[https://docs.rs/inventory/][inventory]] crate
+
+see [[examples/inventory.rs][examples/inventory.rs]] for more information
