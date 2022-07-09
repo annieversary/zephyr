@@ -1,6 +1,26 @@
 * zephyr
 zephyr is a [[https://tailwindcss.com/][tailwind]]-inspired css generator dsl. it acts as a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
 
+documentation is not too great at the moment, but there's not a lot to know ^^
+
+** how to use
+to generate the css out of the list of classes, call =Zephyr::generate_classes=
+
+#+begin_src rust
+let classes = [
+    "mt[10rem]",
+    "color[#e20f00]",
+    "color[green]hover",
+    "content[attr(after)]$after",
+    "content['*']$before",
+    "color[red]$after",
+];
+
+let z = zephyr::Zephyr::new();
+let css = z.generate_classes(classes);
+#+end_src
+
+see [[examples/html.rs][examples/html.rs]] for more information
 ** how to define classes
 *** property and value
 in the most simple case, classes have a property and a value: =name[value]=. zephyr will take this and generate the following css:
@@ -89,25 +109,9 @@ special!("my", val, "margin-top:{val};margin-bottom:{val};"),
 special!("px", val, "padding-left:{val};padding-right:{val};"),
 special!("py", val, "padding-top:{val};padding-bottom:{val};"),
 #+end_src
-** how to use
-to generate the css out of the list of classes, call =generate_classes=
-
-#+begin_src rust
-let classes = [
-    "mt[10rem]",
-    "color[#e20f00]",
-    "color[green]hover",
-    "content[attr(after)]$after",
-    "content['*']$before",
-    "color[red]$after",
-];
-
-let z = zephyr::Zephyr::new();
-let css = z.generate_classes(classes);
-#+end_src
-
-see [[examples/html.rs][examples/html.rs]] for more information
 ** inventory
-by activating the =inventory= feature, you can register classes from different parts of your application, and then generate them all with a single call to =generate_from_inventory=. this is done by using the [[https://docs.rs/inventory/][inventory]] crate
+by activating the =inventory= feature, you can register classes from different parts of your application, and then generate them all with a single call to =Zephyr::generate_from_inventory=. this is done by using the [[https://docs.rs/inventory/][inventory]] crate
+
+you can register the classes you use with =register_class!("mt[10rem]");=
 
 see [[examples/inventory.rs][examples/inventory.rs]] for more information
