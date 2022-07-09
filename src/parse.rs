@@ -17,7 +17,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
         };
 
         return Ok(Class {
-            name: &class[0..p],
+            property: &class[0..p],
             value: None,
             modifiers: mods.into(),
             pseudo,
@@ -35,7 +35,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
             };
 
             return Ok(Class {
-                name: &class[0..start],
+                property: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
                 pseudo,
@@ -60,7 +60,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
             };
 
             return Ok(Class {
-                name: &class[0..start],
+                property: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
                 pseudo,
@@ -70,7 +70,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
         }
         _ => {
             return Ok(Class {
-                name: &class[0..],
+                property: &class[0..],
                 value: None,
                 modifiers: vec![].into(),
                 pseudo,
@@ -91,12 +91,12 @@ mod tests {
 
     fn check(
         class: &str,
-        (name, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
+        (property, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
     ) {
         assert_eq!(
             parse_class(class),
             Ok(Class {
-                name,
+                property,
                 value,
                 modifiers: modifiers.into(),
                 pseudo,
@@ -107,12 +107,12 @@ mod tests {
     }
     fn check_literal(
         class: &str,
-        (name, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
+        (property, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
     ) {
         assert_eq!(
             parse_class(class),
             Ok(Class {
-                name,
+                property,
                 value,
                 modifiers: modifiers.into(),
                 pseudo,

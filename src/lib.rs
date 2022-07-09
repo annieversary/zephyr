@@ -14,22 +14,22 @@ pub mod inventory;
 
 pub struct Zephyr {
     /// for non-value classes
-    pub rules: HashMap<String, String>,
-    /// special rules. Fn(Value) -> Properties
-    pub specials: HashMap<String, SpecialRule>,
+    pub declarations: HashMap<String, String>,
+    /// special declarations. Fn(Value) -> declarations
+    pub specials: HashMap<String, SpecialDeclaration>,
 
-    /// list of name short-hands
-    pub names: HashMap<String, String>,
+    /// list of property short-hands
+    pub properties: HashMap<String, String>,
     /// list of value short-hands
     pub values: HashMap<String, String>,
-    /// list of modifier short-hands
+    /// list of pseudo-class short-hands
     pub modifiers: HashMap<String, String>,
     /// list of pseudo-element short-hands
     pub pseudos: HashMap<String, String>,
 }
 
-/// Value -> Rules
-pub type SpecialRule = Box<dyn Fn(&str) -> String>;
+/// Value -> declarations
+pub type SpecialDeclaration = Box<dyn Fn(&str) -> String>;
 
 #[derive(PartialEq, Debug)]
 pub enum ZephyrError {
@@ -43,8 +43,8 @@ impl Zephyr {
     /// builds a `Zephyr` with the default ruleset
     pub fn new() -> Self {
         Self {
-            rules: default_rules(),
-            names: default_names(),
+            declarations: default_declarations(),
+            properties: default_properties(),
             values: default_values(),
             modifiers: default_modifiers(),
             pseudos: default_pseudos(),
@@ -55,8 +55,8 @@ impl Zephyr {
     /// builds a `Zephyr` without the default ruleset
     pub fn new_without_defaults() -> Self {
         Self {
-            rules: HashMap::new(),
-            names: HashMap::new(),
+            declarations: HashMap::new(),
+            properties: HashMap::new(),
             values: HashMap::new(),
             modifiers: HashMap::new(),
             pseudos: HashMap::new(),
@@ -125,7 +125,7 @@ mod tests {
         let z = Zephyr::new();
 
         let class = Class {
-            name: "m",
+            property: "m",
             value: Some("1rem"),
             modifiers: vec![].into(),
             pseudo: None,
@@ -136,7 +136,7 @@ mod tests {
         assert_eq!(css, r#".m\[1rem\]{margin:1rem;}"#);
 
         let class = Class {
-            name: "m",
+            property: "m",
             value: Some("1rem"),
             modifiers: vec!["focus"].into(),
             pseudo: None,
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem;}"#);
 
         let class = Class {
-            name: "m",
+            property: "m",
             value: Some("1rem"),
             modifiers: vec!["focus", "hover", "odd"].into(),
             pseudo: None,

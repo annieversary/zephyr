@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::SpecialRule;
+use crate::SpecialDeclaration;
 
-pub(crate) fn default_rules() -> HashMap<String, String> {
+pub(crate) fn default_declarations() -> HashMap<String, String> {
     vec![
         ("flex", "display:flex;"),
         ("flex-row", "display:flex;flex-direction:row;"),
@@ -16,7 +16,7 @@ pub(crate) fn default_rules() -> HashMap<String, String> {
     .collect()
 }
 
-pub(crate) fn default_names() -> HashMap<String, String> {
+pub(crate) fn default_properties() -> HashMap<String, String> {
     vec![
         ("w", "width"),
         ("h", "height"),
@@ -79,12 +79,12 @@ macro_rules! special {
             fn fun<'a>($val: &'a str) -> String {
                 format!($string)
             }
-            Box::new(fun) as SpecialRule
+            Box::new(fun) as SpecialDeclaration
         })
     };
 }
 
-pub(crate) fn default_specials() -> HashMap<String, SpecialRule> {
+pub(crate) fn default_specials() -> HashMap<String, SpecialDeclaration> {
     vec![
         special!("mx", val, "margin-left:{val};margin-right:{val};"),
         special!("my", val, "margin-top:{val};margin-bottom:{val};"),
