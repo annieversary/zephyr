@@ -1,4 +1,8 @@
-use crate::{Zephyr, ZephyrError};
+use crate::{
+    media_queries::{ReducedMotion, Responsive},
+    modifiers::Modifiers,
+    Zephyr, ZephyrError,
+};
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct Class<'a> {
@@ -6,7 +10,7 @@ pub(crate) struct Class<'a> {
     pub value: Option<&'a str>,
     /// if true, no replacements will be done on `value`
     pub value_literal: bool,
-    pub modifiers: Vec<&'a str>,
+    pub modifiers: Modifiers<'a>,
     pub pseudo: Option<&'a str>,
     /// the original unparsed value
     /// needed to generate the css selector
@@ -23,7 +27,9 @@ impl<'a> Class<'a> {
         } = self;
 
         let mut rest = modifiers
+            .all
             .iter()
+            .filter(|m| Responsive::from_str(*m).is_none() && ReducedMotion::from_str(*m).is_none())
             .map(|m| -> &str { z.modifiers.get(*m).map(AsRef::as_ref).unwrap_or(m) })
             .collect::<Vec<_>>()
             .join(":");
@@ -56,6 +62,8 @@ impl<'a> Class<'a> {
         r
     }
 
+    /// generates the css rule for this class
+    /// does not generate the corresponding media query
     pub(crate) fn generate(&self, z: &Zephyr) -> Result<String, ZephyrError> {
         let property = z
             .properties
@@ -86,5 +94,18 @@ impl<'a> Class<'a> {
         } else {
             Err(ZephyrError::ValueMissing)
         }
+    }
+
+    pub fn generate_with_media_query(&self, z: &Zephyr) -> Result<String, ZephyrError> {
+        let mut css = self.generate(z)?;
+
+        if let Some(r) = &self.modifiers.responsive {
+            css = r.wrap(&css);
+        }
+        if let Some(r) = &self.modifiers.reduced_motion {
+            css = r.wrap(&css);
+        }
+
+        Ok(css)
     }
 }

@@ -6,6 +6,8 @@ use crate::{defaults::*, parse::*};
 
 mod class;
 mod defaults;
+mod media_queries;
+mod modifiers;
 mod parse;
 
 #[cfg(feature = "inventory")]
@@ -97,6 +99,8 @@ impl Zephyr {
                 }
             })
             // we ignore errors
+            // TODO change this to call parse_class directly
+            // TODO then group by media query
             .flat_map(|c| match self.generate_class(c) {
                 Ok(v) => Some(v),
                 Err(err) => {
@@ -116,7 +120,7 @@ impl Zephyr {
     /// this one returns an error if parsing or generating fails
     pub fn generate_class(&self, class: &str) -> Result<String, ZephyrError> {
         let c = parse_class(class)?;
-        c.generate(self)
+        c.generate_with_media_query(self)
     }
 }
 
@@ -233,6 +237,18 @@ mod tests {
         assert_eq!(
             classes,
             r#".border\{1px_solid_black\}{border:1px_solid_black;}.w\{full\}{width:full;}"#
+        );
+    }
+
+    #[test]
+    fn generate_with_media_query() {
+        let z = Zephyr::new();
+
+        // the curly brackets indicate that the value should not go through replacements
+        let classes = z.generate_classes(["m[1rem]sm"]);
+        assert_eq!(
+            classes,
+            r#"@media(min-width:640px){.m\[1rem\]sm{margin:1rem;}}"#
         );
     }
 }
