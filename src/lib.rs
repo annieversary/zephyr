@@ -72,9 +72,6 @@ impl Zephyr {
 
     /// generates css rules for all the of the classes that parse correctly
     pub fn generate_classes<'a>(&self, classes: impl IntoIterator<Item = &'a str>) -> String {
-        // TODO when we have media queries, we can do something to group them by the query,
-        //  and then emit those together
-
         // TODO we could return (css, seen_classes)
         let mut seen_classes = vec![];
 
@@ -139,7 +136,7 @@ mod tests {
             modifiers: vec![].into(),
             pseudo: None,
             original: "m[1rem]",
-            value_literal: false,
+            value_type: class::ValueType::Normal,
         };
         let css = class.generate(&z).unwrap();
         assert_eq!(css, r#".m\[1rem\]{margin:1rem;}"#);
@@ -150,7 +147,7 @@ mod tests {
             modifiers: vec!["focus"].into(),
             pseudo: None,
             original: "m[1rem]focus",
-            value_literal: false,
+            value_type: class::ValueType::Normal,
         };
         let css = class.generate(&z).unwrap();
         assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem;}"#);
@@ -161,7 +158,7 @@ mod tests {
             modifiers: vec!["focus", "hover", "odd"].into(),
             pseudo: None,
             original: "m[1rem]focus,hover,odd",
-            value_literal: false,
+            value_type: class::ValueType::Normal,
         };
         let css = class.generate(&z).unwrap();
         assert_eq!(
@@ -250,5 +247,14 @@ mod tests {
             classes,
             r#"@media(min-width:640px){.m\[1rem\]sm{margin:1rem;}}"#
         );
+    }
+
+    #[test]
+    fn generate_variable() {
+        let z = Zephyr::new();
+
+        // the curly brackets indicate that the value should not go through replacements
+        let classes = z.generate_classes(["m(my-margin)"]);
+        assert_eq!(classes, r#".m\(my-margin\){margin:var(--my-margin);}"#);
     }
 }

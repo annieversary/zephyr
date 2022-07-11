@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::{
     media_queries::{ReducedMotion, Responsive},
     modifiers::Modifiers,
@@ -8,13 +10,22 @@ use crate::{
 pub(crate) struct Class<'a> {
     pub property: &'a str,
     pub value: Option<&'a str>,
-    /// if true, no replacements will be done on `value`
-    pub value_literal: bool,
+    pub value_type: ValueType,
     pub modifiers: Modifiers<'a>,
     pub pseudo: Option<&'a str>,
     /// the original unparsed value
     /// needed to generate the css selector
     pub original: &'a str,
+}
+
+#[derive(PartialEq, Debug)]
+pub(crate) enum ValueType {
+    /// replacements will be performed
+    Normal,
+    /// no replacements will be done. value will be output as-is
+    Literal,
+    /// value will be output as `var(--value)`, without any replacements
+    Variable,
 }
 
 impl<'a> Class<'a> {
@@ -73,14 +84,12 @@ impl<'a> Class<'a> {
         let selector = self.selector(z);
 
         if let Some(val) = self.value {
-            let val = if self.value_literal {
-                val.to_string()
-            } else {
-                z.values
-                    .get(val)
-                    .map(AsRef::as_ref)
-                    .unwrap_or(val)
-                    .replace('_', " ")
+            let val = match self.value_type {
+                ValueType::Normal => {
+                    replace_underscores(z.values.get(val).map(AsRef::as_ref).unwrap_or(val))
+                }
+                ValueType::Literal => val.into(),
+                ValueType::Variable => format!("var(--{val})").into(),
             };
 
             if let Some(fun) = z.specials.get(property) {
@@ -107,5 +116,14 @@ impl<'a> Class<'a> {
         }
 
         Ok(css)
+    }
+}
+
+/// replaces underscores with spaces
+fn replace_underscores<'a>(s: &'a str) -> Cow<'a, str> {
+    if s.contains('_') {
+        s.replace('_', " ").into()
+    } else {
+        s.into()
     }
 }

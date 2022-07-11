@@ -1,4 +1,7 @@
-use crate::{class::Class, ZephyrError};
+use crate::{
+    class::{Class, ValueType},
+    ZephyrError,
+};
 
 pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrError> {
     // this code is kinda repetitive but idk
@@ -22,9 +25,12 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
             modifiers: mods.into(),
             pseudo,
             original,
-            value_literal: false,
+            value_type: ValueType::Normal,
         });
     }
+
+    // first try braces, then parenthesis, then square brakcets
+    // i know it's kinda ugly and repetitive, but it works for now
 
     match (pos(class, '{'), pos(class, '}')) {
         (Some(start), Some(end)) if start <= end => {
@@ -40,7 +46,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
                 modifiers: mods.into(),
                 pseudo,
                 original,
-                value_literal: true,
+                value_type: ValueType::Literal,
             });
         }
         // go to [...] case
@@ -50,6 +56,28 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
             return Err(ZephyrError::InvalidBraces);
         }
     };
+
+    match (pos(class, '('), pos(class, ')')) {
+        (Some(start), Some(end)) if start <= end => {
+            let mods = if end + 1 == class.len() {
+                vec![]
+            } else {
+                class[end + 1..].split(',').collect()
+            };
+
+            return Ok(Class {
+                property: &class[0..start],
+                value: Some(&class[start + 1..end]),
+                modifiers: mods.into(),
+                pseudo,
+                original,
+                value_type: ValueType::Variable,
+            });
+        }
+        _ => {
+            // do nothing
+        }
+    }
 
     match (pos(class, '['), pos(class, ']')) {
         (Some(start), Some(end)) if start <= end => {
@@ -65,7 +93,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
                 modifiers: mods.into(),
                 pseudo,
                 original,
-                value_literal: false,
+                value_type: ValueType::Normal,
             });
         }
         _ => {
@@ -75,7 +103,7 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
                 modifiers: vec![].into(),
                 pseudo,
                 original,
-                value_literal: false,
+                value_type: ValueType::Normal,
             });
         }
     }
@@ -101,13 +129,19 @@ mod tests {
                 modifiers: modifiers.into(),
                 pseudo,
                 original: class,
-                value_literal: false,
+                value_type: ValueType::Normal,
             })
         );
     }
-    fn check_literal(
+    fn check_with_type(
         class: &str,
-        (property, value, modifiers, pseudo): (&str, Option<&str>, Vec<&str>, Option<&str>),
+        (property, value, modifiers, pseudo, value_type): (
+            &str,
+            Option<&str>,
+            Vec<&str>,
+            Option<&str>,
+            ValueType,
+        ),
     ) {
         assert_eq!(
             parse_class(class),
@@ -117,7 +151,7 @@ mod tests {
                 modifiers: modifiers.into(),
                 pseudo,
                 original: class,
-                value_literal: true,
+                value_type,
             })
         );
     }
@@ -143,11 +177,28 @@ mod tests {
     #[test]
     fn parse_literal_values() {
         // testing out weird unicode stuffs
-        check_literal(
+        check_with_type(
             "hello{hey_hello}",
-            ("hello", Some("hey_hello"), vec![], None),
+            ("hello", Some("hey_hello"), vec![], None, ValueType::Literal),
         );
     }
+
+    #[test]
+    fn parse_variable_values() {
+        // testing out weird unicode stuffs
+        check_with_type(
+            "hello(hey_hello)",
+            (
+                "hello",
+                Some("hey_hello"),
+                vec![],
+                None,
+                ValueType::Variable,
+            ),
+        );
+    }
+
+    // TODO add more tests for interactions between all of those
 
     #[test]
     fn parse_modifier() {
