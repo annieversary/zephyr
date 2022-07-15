@@ -8,7 +8,12 @@ pub(crate) fn default_declarations() -> HashMap<String, String> {
         ("flex-row", "display:flex;flex-direction:row;"),
         ("flex-col", "display:flex;flex-direction:column;"),
         ("items-center", "align-items:center"),
+        ("items-end", "align-items:flex-end"),
         ("justify-center", "justify-content:center"),
+        ("justify-between", "justify-content:space-between"),
+        ("justify-evenly", "justify-content:space-evenly"),
+        ("text-left", "text-align:left"),
+        ("text-right", "text-align:right"),
         // TODO
     ]
     .into_iter()
@@ -90,6 +95,7 @@ pub(crate) fn default_specials() -> HashMap<String, SpecialDeclaration> {
         special!("my", val, "margin-top:{val};margin-bottom:{val};"),
         special!("px", val, "padding-left:{val};padding-right:{val};"),
         special!("py", val, "padding-top:{val};padding-bottom:{val};"),
+        special!("wh", val, "width:{val};height:{val};"),
         // TODO
     ]
     .into_iter()
