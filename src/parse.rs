@@ -3,7 +3,7 @@ use crate::{
     ZephyrError,
 };
 
-pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrError> {
+pub(crate) fn parse_class(original: &str) -> Result<Class, ZephyrError> {
     // this code is kinda repetitive but idk
 
     let (class, pseudo) = if let Some((class, pseudo)) = original.split_once('$') {
@@ -87,25 +87,23 @@ pub(crate) fn parse_class<'a>(original: &'a str) -> Result<Class<'a>, ZephyrErro
                 class[end + 1..].split(',').collect()
             };
 
-            return Ok(Class {
+            Ok(Class {
                 property: &class[0..start],
                 value: Some(&class[start + 1..end]),
                 modifiers: mods.into(),
                 pseudo,
                 original,
                 value_type: ValueType::Normal,
-            });
+            })
         }
-        _ => {
-            return Ok(Class {
-                property: &class[0..],
-                value: None,
-                modifiers: vec![].into(),
-                pseudo,
-                original,
-                value_type: ValueType::Normal,
-            });
-        }
+        _ => Ok(Class {
+            property: &class[0..],
+            value: None,
+            modifiers: vec![].into(),
+            pseudo,
+            original,
+            value_type: ValueType::Normal,
+        }),
     }
 }
 

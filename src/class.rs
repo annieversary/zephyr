@@ -120,7 +120,7 @@ impl<'a> Class<'a> {
 }
 
 /// replaces underscores with spaces
-fn replace_underscores<'a>(s: &'a str) -> Cow<'a, str> {
+fn replace_underscores(s: &str) -> Cow<str> {
     if s.contains('_') {
         s.replace('_', " ").into()
     } else {
