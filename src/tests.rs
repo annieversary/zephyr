@@ -14,7 +14,7 @@ fn generate_margin_works() {
         value_type: class::ValueType::Normal,
     };
     let css = class.generate(&z).unwrap();
-    assert_eq!(css, r#".m\[1rem\]{margin:1rem;}"#);
+    assert_eq!(css, r#".m\[1rem\]{margin:1rem}"#);
 
     let class = Class {
         property: "m",
@@ -25,7 +25,7 @@ fn generate_margin_works() {
         value_type: class::ValueType::Normal,
     };
     let css = class.generate(&z).unwrap();
-    assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem;}"#);
+    assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem}"#);
 
     let class = Class {
         property: "m",
@@ -38,7 +38,7 @@ fn generate_margin_works() {
     let css = class.generate(&z).unwrap();
     assert_eq!(
         css,
-        r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\){margin:1rem;}"#
+        r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\){margin:1rem}"#
     );
 }
 
@@ -52,7 +52,7 @@ fn generate_classes_works() {
     let classes = z.generate_classes(["m[3rem]hover,focus$placeholder"]);
     assert_eq!(
         classes,
-        r#".m\[3rem\]hover,focus\$placeholder:hover:focus::placeholder{margin:3rem;}"#
+        r#".m\[3rem\]hover,focus\$placeholder:hover:focus::placeholder{margin:3rem}"#
     );
 
     let classes = z.generate_classes(["flex|hover,focus$placeholder"]);
@@ -62,7 +62,7 @@ fn generate_classes_works() {
     );
 
     let classes = z.generate_classes(["mr[0.5rem]"]);
-    assert_eq!(classes, r#".mr\[0\.5rem\]{margin-right:0.5rem;}"#);
+    assert_eq!(classes, r#".mr\[0\.5rem\]{margin-right:0.5rem}"#);
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn generate_multiple_works() {
     let classes_separate = z.generate_classes(["flex-row", "mt[1rem]"]);
     assert_eq!(
         classes_joined,
-        r#".flex-row{display:flex;flex-direction:row}.mt\[1rem\]{margin-top:1rem;}"#
+        r#".flex-row{display:flex;flex-direction:row}.mt\[1rem\]{margin-top:1rem}"#
     );
     assert_eq!(classes_separate, classes_joined);
 }
@@ -85,7 +85,7 @@ fn generate_specials_works() {
     let classes = z.generate_classes(["mx[1rem]"]);
     assert_eq!(
         classes,
-        r#".mx\[1rem\]{margin-left:1rem;margin-right:1rem;}"#
+        r#".mx\[1rem\]{margin-left:1rem;margin-right:1rem}"#
     );
 }
 
@@ -96,7 +96,7 @@ fn generate_with_spaces_works() {
     let classes = z.generate_classes(["border[1px_solid_black]"]);
     assert_eq!(
         classes,
-        r#".border\[1px_solid_black\]{border:1px solid black;}"#
+        r#".border\[1px_solid_black\]{border:1px solid black}"#
     );
 }
 
@@ -108,7 +108,7 @@ fn generate_literals_works() {
     let classes = z.generate_classes(["border{1px_solid_black}", "w{full}"]);
     assert_eq!(
         classes,
-        r#".border\{1px_solid_black\}{border:1px_solid_black;}.w\{full\}{width:full;}"#
+        r#".border\{1px_solid_black\}{border:1px_solid_black}.w\{full\}{width:full}"#
     );
 }
 
@@ -119,7 +119,7 @@ fn generate_with_media_query() {
     let classes = z.generate_classes(["m[1rem]sm"]);
     assert_eq!(
         classes,
-        r#"@media(min-width:640px){.m\[1rem\]sm{margin:1rem;}}"#
+        r#"@media(min-width:640px){.m\[1rem\]sm{margin:1rem}}"#
     );
 }
 
@@ -129,7 +129,7 @@ fn generate_variable() {
 
     // the parens indicate that it should be replaced by `var(--...)`
     let classes = z.generate_classes(["m(my-margin)"]);
-    assert_eq!(classes, r#".m\(my-margin\){margin:var(--my-margin);}"#);
+    assert_eq!(classes, r#".m\(my-margin\){margin:var(--my-margin)}"#);
 }
 
 #[test]
@@ -141,4 +141,12 @@ fn generate_css_colors() {
         classes,
         r#".white{color:white}.blanchedalmond{color:blanchedalmond}"#
     );
+}
+
+#[test]
+fn generate_context_aware_value() {
+    let z = Zephyr::new();
+
+    let classes = z.generate_classes(["tt[u]"]);
+    assert_eq!(classes, r#".tt\[u\]{text-transform:uppercase}"#);
 }

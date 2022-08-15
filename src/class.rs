@@ -21,10 +21,16 @@ pub(crate) struct Class<'a> {
 #[derive(PartialEq, Debug)]
 pub(crate) enum ValueType {
     /// replacements will be performed
+    ///
+    /// eg: `m[1rem]`
     Normal,
     /// no replacements will be done. value will be output as-is
+    ///
+    /// eg: `border{1px solid black}`
     Literal,
     /// value will be output as `var(--value)`, without any replacements
+    ///
+    /// eg: `c(main-color)`
     Variable,
 }
 
@@ -86,7 +92,14 @@ impl<'a> Class<'a> {
         if let Some(val) = self.value {
             let val = match self.value_type {
                 ValueType::Normal => {
-                    replace_underscores(z.values.get(val).map(AsRef::as_ref).unwrap_or(val))
+                    let v = z
+                        .context_aware_values
+                        .get(property)
+                        .and_then(|h| h.get(val))
+                        .or_else(|| z.values.get(val))
+                        .map(AsRef::as_ref)
+                        .unwrap_or(val);
+                    replace_underscores(v)
                 }
                 ValueType::Literal => val.into(),
                 ValueType::Variable => format!("var(--{val})").into(),
@@ -96,7 +109,7 @@ impl<'a> Class<'a> {
                 let v = fun(&val);
                 Ok(format!("{selector}{{{v}}}",))
             } else {
-                Ok(format!("{selector}{{{property}:{val};}}"))
+                Ok(format!("{selector}{{{property}:{val}}}"))
             }
         } else if let Some(v) = z.declarations.get(property) {
             Ok(format!("{selector}{{{v}}}"))

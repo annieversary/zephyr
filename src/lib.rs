@@ -35,6 +35,10 @@ pub struct Zephyr {
     pub modifiers: HashMap<String, String>,
     /// list of pseudo-element short-hands
     pub pseudos: HashMap<String, String>,
+    /// list of value replacements for each property
+    ///
+    /// property -> [(short, expanded)]
+    pub context_aware_values: HashMap<String, HashMap<String, String>>,
 }
 
 /// value -> declarations
@@ -108,6 +112,7 @@ impl Zephyr {
             modifiers: default_modifiers(),
             pseudos: default_pseudos(),
             specials: default_specials(),
+            context_aware_values: default_context_aware_values(),
         }
     }
 

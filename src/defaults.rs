@@ -2,8 +2,14 @@ use std::collections::HashMap;
 
 use crate::SpecialDeclaration;
 
+fn vec_to_hashmap(v: &[(&str, &str)]) -> HashMap<String, String> {
+    v.into_iter()
+        .map(|(a, b)| (a.to_string(), b.to_string()))
+        .collect::<HashMap<_, _>>()
+}
+
 pub(crate) fn default_declarations() -> HashMap<String, String> {
-    vec![
+    vec_to_hashmap(&[
         ("flex", "display:flex"),
         ("flex-row", "display:flex;flex-direction:row"),
         ("flex-col", "display:flex;flex-direction:column"),
@@ -16,14 +22,11 @@ pub(crate) fn default_declarations() -> HashMap<String, String> {
         ("text-left", "text-align:left"),
         ("text-right", "text-align:right"),
         // TODO
-    ]
-    .into_iter()
-    .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect::<HashMap<_, _>>()
+    ])
 }
 
 pub(crate) fn default_properties() -> HashMap<String, String> {
-    vec![
+    vec_to_hashmap(&[
         ("w", "width"),
         ("h", "height"),
         ("m", "margin"),
@@ -36,47 +39,89 @@ pub(crate) fn default_properties() -> HashMap<String, String> {
         ("pb", "padding-bottom"),
         ("pl", "padding-left"),
         ("pr", "padding-right"),
+        ("c", "color"),
         ("bg", "background"),
         ("bgc", "background-color"),
+        ("tt", "text-transform"),
+        ("td", "text-decoration"),
         // TODO
-    ]
-    .into_iter()
-    .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect()
+    ])
 }
 
 pub(crate) fn default_values() -> HashMap<String, String> {
-    vec![
+    vec_to_hashmap(&[
         ("full", "100%"),
+        // TODO
+    ])
+}
+
+pub(crate) fn default_context_aware_values() -> HashMap<String, HashMap<String, String>> {
+    [
+        (
+            "text-decoration",
+            &[
+                ("u", "underline"),
+                ("ud", "underline dotted"),
+                ("uw", "underline wavy"),
+                ("o", "overline"),
+                ("od", "overline dotted"),
+                ("ow", "overline wavy"),
+            ] as &[(&str, &str)],
+        ),
+        (
+            "text-transform",
+            &[("c", "capitalize"), ("u", "uppercase"), ("l", "lowercase")],
+        ),
+        (
+            "overflow",
+            &[
+                ("v", "visible"),
+                ("h", "hidden"),
+                ("s", "scroll"),
+                ("c", "clip"),
+            ],
+        ),
+        (
+            "overflow-x",
+            &[
+                ("v", "visible"),
+                ("h", "hidden"),
+                ("s", "scroll"),
+                ("c", "clip"),
+            ],
+        ),
+        (
+            "overflow-y",
+            &[
+                ("v", "visible"),
+                ("h", "hidden"),
+                ("s", "scroll"),
+                ("c", "clip"),
+            ],
+        ),
         // TODO
     ]
     .into_iter()
-    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .map(|(n, h)| (n.to_string(), vec_to_hashmap(h)))
     .collect()
 }
 
 pub(crate) fn default_modifiers() -> HashMap<String, String> {
-    vec![
+    vec_to_hashmap(&[
         ("odd", "nth-child(odd)"),
         ("even", "nth-child(even)"),
         ("first", "first-child"),
         ("last", "last-child"),
         ("only", "only-child"),
         // TODO
-    ]
-    .into_iter()
-    .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect()
+    ])
 }
 
 pub(crate) fn default_pseudos() -> HashMap<String, String> {
-    vec![
+    vec_to_hashmap(&[
         ("ph", "placeholder"),
         // TODO
-    ]
-    .into_iter()
-    .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect()
+    ])
 }
 
 macro_rules! special {
@@ -91,11 +136,11 @@ macro_rules! special {
 }
 
 pub(crate) fn default_specials() -> HashMap<String, SpecialDeclaration> {
-    vec![
-        special!("mx", val, "margin-left:{val};margin-right:{val};"),
-        special!("my", val, "margin-top:{val};margin-bottom:{val};"),
-        special!("px", val, "padding-left:{val};padding-right:{val};"),
-        special!("py", val, "padding-top:{val};padding-bottom:{val};"),
+    [
+        special!("mx", val, "margin-left:{val};margin-right:{val}"),
+        special!("my", val, "margin-top:{val};margin-bottom:{val}"),
+        special!("px", val, "padding-left:{val};padding-right:{val}"),
+        special!("py", val, "padding-top:{val};padding-bottom:{val}"),
         special!("wh", val, "width:{val};height:{val};"),
         // TODO
     ]
