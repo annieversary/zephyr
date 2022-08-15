@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
-use crate::SpecialDeclaration;
+use crate::{consts::CSS_COLORS, SpecialDeclaration};
 
 pub(crate) fn default_declarations() -> HashMap<String, String> {
-    vec![
-        ("flex", "display:flex;"),
-        ("flex-row", "display:flex;flex-direction:row;"),
-        ("flex-col", "display:flex;flex-direction:column;"),
+    let mut h = vec![
+        ("flex", "display:flex"),
+        ("flex-row", "display:flex;flex-direction:row"),
+        ("flex-col", "display:flex;flex-direction:column"),
         ("items-center", "align-items:center"),
+        ("items-start", "align-items:flex-start"),
         ("items-end", "align-items:flex-end"),
         ("justify-center", "justify-content:center"),
         ("justify-between", "justify-content:space-between"),
@@ -18,7 +19,16 @@ pub(crate) fn default_declarations() -> HashMap<String, String> {
     ]
     .into_iter()
     .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect()
+    .collect::<HashMap<_, _>>();
+
+    // add all css colors
+    h.extend(
+        CSS_COLORS
+            .iter()
+            .map(|c| (c.to_string(), format!("color:{c}"))),
+    );
+
+    h
 }
 
 pub(crate) fn default_properties() -> HashMap<String, String> {

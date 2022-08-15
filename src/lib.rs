@@ -5,6 +5,7 @@ use defaults::default_modifiers;
 use crate::{defaults::*, parse::*};
 
 mod class;
+mod consts;
 mod defaults;
 mod media_queries;
 mod modifiers;
@@ -172,7 +173,7 @@ mod tests {
         let z = Zephyr::new();
 
         let classes = z.generate_classes(["flex-row"]);
-        assert_eq!(classes, r#".flex-row{display:flex;flex-direction:row;}"#);
+        assert_eq!(classes, r#".flex-row{display:flex;flex-direction:row}"#);
 
         let classes = z.generate_classes(["m[3rem]hover,focus$placeholder"]);
         assert_eq!(
@@ -183,7 +184,7 @@ mod tests {
         let classes = z.generate_classes(["flex|hover,focus$placeholder"]);
         assert_eq!(
             classes,
-            r#".flex\|hover,focus\$placeholder:hover:focus::placeholder{display:flex;}"#
+            r#".flex\|hover,focus\$placeholder:hover:focus::placeholder{display:flex}"#
         );
 
         let classes = z.generate_classes(["mr[0.5rem]"]);
@@ -198,7 +199,7 @@ mod tests {
         let classes_separate = z.generate_classes(["flex-row", "mt[1rem]"]);
         assert_eq!(
             classes_joined,
-            r#".flex-row{display:flex;flex-direction:row;}.mt\[1rem\]{margin-top:1rem;}"#
+            r#".flex-row{display:flex;flex-direction:row}.mt\[1rem\]{margin-top:1rem;}"#
         );
         assert_eq!(classes_separate, classes_joined);
     }
@@ -241,7 +242,6 @@ mod tests {
     fn generate_with_media_query() {
         let z = Zephyr::new();
 
-        // the curly brackets indicate that the value should not go through replacements
         let classes = z.generate_classes(["m[1rem]sm"]);
         assert_eq!(
             classes,
@@ -253,8 +253,19 @@ mod tests {
     fn generate_variable() {
         let z = Zephyr::new();
 
-        // the curly brackets indicate that the value should not go through replacements
+        // the parens indicate that it should be replaced by `var(--...)`
         let classes = z.generate_classes(["m(my-margin)"]);
         assert_eq!(classes, r#".m\(my-margin\){margin:var(--my-margin);}"#);
+    }
+
+    #[test]
+    fn generate_css_colors() {
+        let z = Zephyr::new();
+
+        let classes = z.generate_classes(["white blanchedalmond"]);
+        assert_eq!(
+            classes,
+            r#".white{color:white}.blanchedalmond{color:blanchedalmond}"#
+        );
     }
 }
