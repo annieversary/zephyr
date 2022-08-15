@@ -134,7 +134,7 @@ fn generate_variable() {
 
 #[test]
 fn generate_css_colors() {
-    let z = Zephyr::new();
+    let z = Zephyr::new().with_css_colors();
 
     let classes = z.generate_classes(["white blanchedalmond"]);
     assert_eq!(

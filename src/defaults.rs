@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{consts::CSS_COLORS, SpecialDeclaration};
+use crate::SpecialDeclaration;
 
 pub(crate) fn default_declarations() -> HashMap<String, String> {
-    let mut h = vec![
+    vec![
         ("flex", "display:flex"),
         ("flex-row", "display:flex;flex-direction:row"),
         ("flex-col", "display:flex;flex-direction:column"),
@@ -19,16 +19,7 @@ pub(crate) fn default_declarations() -> HashMap<String, String> {
     ]
     .into_iter()
     .map(|(a, b)| (a.to_string(), b.to_string()))
-    .collect::<HashMap<_, _>>();
-
-    // add all css colors
-    h.extend(
-        CSS_COLORS
-            .iter()
-            .map(|c| (c.to_string(), format!("color:{c}"))),
-    );
-
-    h
+    .collect::<HashMap<_, _>>()
 }
 
 pub(crate) fn default_properties() -> HashMap<String, String> {

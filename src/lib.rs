@@ -110,4 +110,13 @@ impl Zephyr {
             specials: default_specials(),
         }
     }
+
+    pub fn with_css_colors(mut self) -> Self {
+        self.declarations.extend(
+            crate::consts::CSS_COLORS
+                .iter()
+                .map(|c| (c.to_string(), format!("color:{c}"))),
+        );
+        self
+    }
 }
