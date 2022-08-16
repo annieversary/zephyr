@@ -120,7 +120,7 @@ impl<'a> Class<'a> {
                 ))
             } else {
                 Ok(format!(
-                    "{indent}{selector}{space}{{{nl}{indent2}{property}:{val}{nl}{indent}}}{nl}"
+                    "{indent}{selector}{space}{{{nl}{indent2}{property}:{space}{val}{nl}{indent}}}{nl}"
                 ))
             }
         } else if let Some(v) = z.declarations.get(property) {
