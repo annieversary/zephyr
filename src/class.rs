@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::{
-    media_queries::{ReducedMotion, Responsive},
+    media_queries::{wrap_in_query, ReducedMotion, Responsive},
     modifiers::Modifiers,
     Zephyr, ZephyrError,
 };
@@ -74,6 +74,8 @@ impl<'a> Class<'a> {
             .replace('$', "\\$")
             .replace('\'', "\\'")
             .replace('*', "\\*")
+            .replace('<', "\\<")
+            .replace('@', "\\@")
             .replace('%', "\\%");
         r.insert(0, '.');
         r
@@ -119,16 +121,19 @@ impl<'a> Class<'a> {
     }
 
     pub fn generate_with_media_query(&self, z: &Zephyr) -> Result<String, ZephyrError> {
-        let mut css = self.generate(z)?;
+        let css = self.generate(z)?;
 
+        dbg!(&self.modifiers);
+
+        let mut queries: Vec<String> = vec![];
         if let Some(r) = &self.modifiers.responsive {
-            css = r.wrap(&css);
+            queries.extend(r.queries());
         }
         if let Some(r) = &self.modifiers.reduced_motion {
-            css = r.wrap(&css);
+            queries.extend(r.queries().iter().map(ToString::to_string));
         }
 
-        Ok(css)
+        Ok(wrap_in_query(css, &queries))
     }
 }
 

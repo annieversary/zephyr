@@ -121,6 +121,24 @@ fn generate_with_media_query() {
         classes,
         r#"@media(min-width:640px){.m\[1rem\]sm{margin:1rem}}"#
     );
+
+    let classes = z.generate_classes(["m[1rem]<md"]);
+    assert_eq!(
+        classes,
+        r#"@media(max-width:767.9px){.m\[1rem\]\<md{margin:1rem}}"#
+    );
+
+    let classes = z.generate_classes(["m[1rem]motion-reduce"]);
+    assert_eq!(
+        classes,
+        r#"@media(prefers-reduced-motion:reduce){.m\[1rem\]motion-reduce{margin:1rem}}"#
+    );
+
+    let classes = z.generate_classes(["m[1rem]@xl,motion-reduce"]);
+    assert_eq!(
+        classes,
+        r#"@media(min-width:1280px)and(max-width:1535.9px)and(prefers-reduced-motion:reduce){.m\[1rem\]\@xl,motion-reduce{margin:1rem}}"#
+    );
 }
 
 #[test]

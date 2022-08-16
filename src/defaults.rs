@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::SpecialDeclaration;
 
 fn vec_to_hashmap(v: &[(&str, &str)]) -> HashMap<String, String> {
-    v.into_iter()
+    v.iter()
         .map(|(a, b)| (a.to_string(), b.to_string()))
         .collect::<HashMap<_, _>>()
 }

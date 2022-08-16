@@ -13,8 +13,8 @@ impl<'a> Modifiers<'a> {
         let mut reduced_motion = None;
 
         for m in &all {
-            responsive = Responsive::from_str(m);
-            reduced_motion = ReducedMotion::from_str(m);
+            responsive = responsive.or_else(|| Responsive::from_str(m));
+            reduced_motion = reduced_motion.or_else(|| ReducedMotion::from_str(m));
         }
 
         Self {
