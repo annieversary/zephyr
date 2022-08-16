@@ -1,7 +1,7 @@
 * zephyr
 zephyr is a [[https://tailwindcss.com/][tailwind]]-inspired css generator dsl. it acts as a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
 
-documentation is not too great at the moment, but there's not a lot to know ^^
+documentation is not too great at the moment
 
 ** how to use
 to generate the css out of the list of classes, call =Zephyr::generate_classes=
@@ -20,7 +20,7 @@ let z = zephyr::Zephyr::new();
 let css = z.generate_classes(classes);
 #+end_src
 
-see [[examples/html.rs][examples/html.rs]] for more information
+see [[examples/html.rs][examples/html.rs]] for a more detailed usage example
 ** how to define classes
 *** property and value
 in the most simple case, classes have a property and a value: =name[value]=. zephyr will take this and generate the following css:
@@ -54,19 +54,47 @@ for example, =content['*']hover$after= will result in:
 zephyr performs replacements for some common properties, values, pseudo-classes, and pseudo-elements. they are listed under [[#defaults][defaults]]. these allow you to write =bgc[red]odd= instead of =background-color[red]nth-child(odd)=
 
 you can customize the replacements by accessing the hashmaps in =Zephyr= and inserting/removing what you see fit
-*** media queries
-media queries are unsupported so far, but are on the roadmap
+*** spaces
+any underscores will be replaced by spaces (eg: =border[1px_solid_black] -> border: 1px solid black=). this is because you can't have spaces in a class name, and underscores are not common in css values (as far as i'm aware)
+
+if you would like to use underscores in a value, please use [[#literals][literals]]
+*** literals
+if you want no replacements to be applied, use curly brackets instead of square brackets
+
+=border{1px_solid_black} -> border: 1px_solid_black=
+*** variables
+there's a shorthand syntax for referring to css variables, by using parenthesis instead of square brackets
+
+=bg(my-bg-color) -> background: var(--my-bg-color)=
+*** responsive modifiers
+responsive modifiers are written the same way pseudo-classes are. options are =sm=, =md=, =lg=, =xl=, =xxl=
+
+#+caption:  sizes
+|-----+-------------------|
+| sm  | min-width: 640px  |
+| md  | min-width: 768px  |
+| lg  | min-width: 1024px |
+| xl  | min-width: 1280px |
+| xxl | min-width: 1536px |
+
+classes with a responsive modifier apply on that size and up. you can use =<lg= to apply on all sizes strictly smaller than =lg=, or =@xl= to apply exactly on =xl=
 ** defaults
 these are the current default values, lifted straight from the code.
 you are free to add more by accessing the hashmaps in =Zephyr=
 *** declarations
 these are the non-value classes:
 #+begin_src rust
-("flex", "display:flex;"),
-("flex-row", "display:flex;flex-direction:row;"),
-("flex-col", "display:flex;flex-direction:column;"),
+("flex", "display:flex"),
+("flex-row", "display:flex;flex-direction:row"),
+("flex-col", "display:flex;flex-direction:column"),
 ("items-center", "align-items:center"),
+("items-start", "align-items:flex-start"),
+("items-end", "align-items:flex-end"),
 ("justify-center", "justify-content:center"),
+("justify-between", "justify-content:space-between"),
+("justify-evenly", "justify-content:space-evenly"),
+("text-left", "text-align:left"),
+("text-right", "text-align:right"),
 #+end_src
 *** properties
 #+begin_src rust
@@ -82,8 +110,14 @@ these are the non-value classes:
 ("pb", "padding-bottom"),
 ("pl", "padding-left"),
 ("pr", "padding-right"),
+("c", "color"),
 ("bg", "background"),
 ("bgc", "background-color"),
+("tt", "text-transform"),
+("td", "text-decoration"),
+("fw", "font-weight"),
+("ff", "font-family"),
+("fs", "font-size"),
 #+end_src
 *** values
 #+begin_src rust
