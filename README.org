@@ -1,7 +1,7 @@
 * zephyr
 zephyr is a [[https://tailwindcss.com/][tailwind]]-inspired css generator dsl. it acts as a replacement for inline styles, with the added ability of pseudo-elements, pseudo-classes, and more
 
-documentation is not too great at the moment
+[[https://versary.town/zephyr/][playground]]
 
 ** how to use
 to generate the css out of the list of classes, call =Zephyr::generate_classes=
