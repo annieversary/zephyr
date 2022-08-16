@@ -16,6 +16,9 @@ mod tests;
 #[macro_use]
 pub mod inventory;
 
+#[cfg(feature = "scraping")]
+pub mod scraping;
+
 /// used to generate css out of classes
 ///
 /// contains shorthands and replacements that can be modified
