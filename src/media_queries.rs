@@ -1,3 +1,5 @@
+use crate::{nl, space};
+
 #[derive(PartialEq, Debug)]
 pub(crate) struct Responsive {
     breakpoint: Breakpoint,
@@ -118,7 +120,7 @@ impl ReducedMotion {
     }
 }
 
-pub(crate) fn wrap_in_query(css: String, queries: &[String]) -> String {
+pub(crate) fn wrap_in_query(css: String, queries: &[String], pretty_print: bool) -> String {
     if queries.is_empty() {
         return css;
     }
@@ -126,8 +128,10 @@ pub(crate) fn wrap_in_query(css: String, queries: &[String]) -> String {
         .iter()
         .map(|s| format!("({s})"))
         .collect::<Vec<String>>()
-        .join("and");
-    format!("@media{query}{{{css}}}")
+        .join(if pretty_print { " and " } else { "and" });
+    let space = space(pretty_print);
+    let nl = nl(pretty_print);
+    format!("@media{space}{query}{space}{{{nl}{css}}}{nl}")
 }
 
 #[cfg(test)]

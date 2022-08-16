@@ -44,6 +44,7 @@ pub(crate) fn default_properties() -> HashMap<String, String> {
         ("bgc", "background-color"),
         ("tt", "text-transform"),
         ("td", "text-decoration"),
+        ("fw", "font-weight"),
         // TODO
     ])
 }

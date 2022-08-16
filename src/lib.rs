@@ -42,6 +42,8 @@ pub struct Zephyr {
     ///
     /// property -> [(short, expanded)]
     pub context_aware_values: HashMap<String, HashMap<String, String>>,
+
+    pub pretty_print: bool,
 }
 
 /// value -> declarations
@@ -97,7 +99,7 @@ impl Zephyr {
         let len = classes.len();
         tracing::trace!("finished generating {len} classes");
 
-        classes.join("")
+        classes.join(nl(self.pretty_print))
     }
 
     /// this one returns an error if parsing or generating fails
@@ -116,15 +118,30 @@ impl Zephyr {
             pseudos: default_pseudos(),
             specials: default_specials(),
             context_aware_values: default_context_aware_values(),
+            pretty_print: false,
         }
     }
 
     pub fn with_css_colors(mut self) -> Self {
-        self.declarations.extend(
-            crate::consts::CSS_COLORS
-                .iter()
-                .map(|c| (c.to_string(), format!("color:{c}"))),
-        );
+        self.declarations
+            .extend(crate::consts::CSS_COLORS.iter().map(|c| {
+                (
+                    c.to_string(),
+                    format!("color:{}{c}", space(self.pretty_print)),
+                )
+            }));
         self
     }
+}
+
+pub(crate) fn space(b: bool) -> &'static str {
+    b.then_some(" ").unwrap_or_default()
+}
+
+pub(crate) fn indent(b: bool, level: usize) -> String {
+    b.then_some("    ".repeat(level)).unwrap_or_default()
+}
+
+pub(crate) fn nl(b: bool) -> &'static str {
+    b.then_some("\n").unwrap_or_default()
 }

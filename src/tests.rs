@@ -13,7 +13,7 @@ fn generate_margin_works() {
         original: "m[1rem]",
         value_type: class::ValueType::Normal,
     };
-    let css = class.generate(&z).unwrap();
+    let css = class.generate(&z, 0).unwrap();
     assert_eq!(css, r#".m\[1rem\]{margin:1rem}"#);
 
     let class = Class {
@@ -24,7 +24,7 @@ fn generate_margin_works() {
         original: "m[1rem]focus",
         value_type: class::ValueType::Normal,
     };
-    let css = class.generate(&z).unwrap();
+    let css = class.generate(&z, 0).unwrap();
     assert_eq!(css, r#".m\[1rem\]focus:focus{margin:1rem}"#);
 
     let class = Class {
@@ -35,7 +35,7 @@ fn generate_margin_works() {
         original: "m[1rem]focus,hover,odd",
         value_type: class::ValueType::Normal,
     };
-    let css = class.generate(&z).unwrap();
+    let css = class.generate(&z, 0).unwrap();
     assert_eq!(
         css,
         r#".m\[1rem\]focus,hover,odd:focus:hover:nth-child\(odd\){margin:1rem}"#
