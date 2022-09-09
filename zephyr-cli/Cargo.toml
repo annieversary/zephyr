@@ -1,0 +1,12 @@
+[package]
+name = "zephyr-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "3.2.12", features = ["derive", "wrap_help"] }
+color-eyre = "0.6.2"
+notify = "5.0.0"
+notify-debouncer-mini = "0.2.1"
+walkdir = "2.3.2"
+zephyr = { path = "..", features = ["scraping"] }

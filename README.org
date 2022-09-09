@@ -4,6 +4,7 @@ zephyr is a [[https://tailwindcss.com/][tailwind]]-inspired css generator dsl. i
 [[https://versary.town/zephyr/][playground]]
 
 ** how to use
+*** as a library
 to generate the css out of the list of classes, call =Zephyr::generate_classes=
 
 #+begin_src rust
@@ -21,6 +22,8 @@ let css = z.generate_classes(classes);
 #+end_src
 
 see [[examples/html.rs][examples/html.rs]] for a more detailed usage example
+*** as a cli program
+first go into =zephyr-cli= and run =cargo install --path .=. =zephry-cli= will now be available. you can use it like so: =zephyr-cli . -wr -o my.css=
 ** how to define classes
 *** property and value
 in the most simple case, classes have a property and a value: =name[value]=. zephyr will take this and generate the following css:
